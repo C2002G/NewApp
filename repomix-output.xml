@@ -1,0 +1,4033 @@
+This file is a merged representation of the entire codebase, combined into a single document by Repomix.
+
+<file_summary>
+This section contains a summary of this file.
+
+<purpose>
+This file contains a packed representation of the entire repository's contents.
+It is designed to be easily consumable by AI systems for analysis, code review,
+or other automated processes.
+</purpose>
+
+<file_format>
+The content is organized as follows:
+1. This summary section
+2. Repository information
+3. Directory structure
+4. Repository files (if enabled)
+5. Multiple file entries, each consisting of:
+  - File path as an attribute
+  - Full contents of the file
+</file_format>
+
+<usage_guidelines>
+- This file should be treated as read-only. Any changes should be made to the
+  original repository files, not this packed version.
+- When processing this file, use the file path to distinguish
+  between different files in the repository.
+- Be aware that this file may contain sensitive information. Handle it with
+  the same level of security as you would the original repository.
+</usage_guidelines>
+
+<notes>
+- Some files may have been excluded based on .gitignore rules and Repomix's configuration
+- Binary files are not included in this packed representation. Please refer to the Repository Structure section for a complete list of file paths, including binary files
+- Files matching patterns in .gitignore are excluded
+- Files matching default ignore patterns are excluded
+- Files are sorted by Git change count (files with more changes are at the bottom)
+</notes>
+
+</file_summary>
+
+<directory_structure>
+components/
+  BottomNav.tsx
+  ChatView.tsx
+  CleanerRadarView.tsx
+  ClientExploreView.tsx
+  ConceptModal.tsx
+  CreateJobModal.tsx
+  Header.tsx
+  MyJobsView.tsx
+  ProfileView.tsx
+  ReviewModal.tsx
+context/
+  MarketplaceContext.tsx
+data/
+  mockData.ts
+App.tsx
+index.css
+main.tsx
+types.ts
+</directory_structure>
+
+<files>
+This section contains the contents of the repository's files.
+
+<file path="components/BottomNav.tsx">
+import React from 'react';
+import { useMarketplace } from '../context/MarketplaceContext';
+import { 
+  Home, 
+  Search, 
+  ClipboardList, 
+  MessageSquare, 
+  User, 
+  Plus, 
+  Radar, 
+  Sparkles 
+} from 'lucide-react';
+
+export const BottomNav: React.FC = () => {
+  const { 
+    currentRole, 
+    activeTab, 
+    setActiveTab, 
+    setShowCreateJobModal, 
+    messages,
+    jobs
+  } = useMarketplace();
+
+  return (
+    <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-[#e2ece9] shadow-lg pb-safe">
+      <div className="flex items-center justify-around px-2 py-2">
+        {/* Tab 1: Início / Radar */}
+        <button
+          onClick={() => setActiveTab('explore')}
+          className={`flex flex-col items-center justify-center py-1 px-3 rounded-xl transition cursor-pointer ${
+            activeTab === 'explore'
+              ? 'text-[#0f9286]'
+              : 'text-gray-400 hover:text-gray-600'
+          }`}
+        >
+          {currentRole === 'client' ? (
+            <Home className="w-5 h-5 stroke-[2.2]" />
+          ) : (
+            <Radar className="w-5 h-5 stroke-[2.2]" />
+          )}
+          <span className="text-[10px] font-bold mt-1">
+            {currentRole === 'client' ? 'Início' : 'Radar'}
+          </span>
+        </button>
+
+        {/* Tab 2: Meus Pedidos / Minhas Faxinas */}
+        <button
+          onClick={() => setActiveTab('my_jobs')}
+          className={`flex flex-col items-center justify-center py-1 px-3 rounded-xl transition cursor-pointer ${
+            activeTab === 'my_jobs'
+              ? 'text-[#0f9286]'
+              : 'text-gray-400 hover:text-gray-600'
+          }`}
+        >
+          <ClipboardList className="w-5 h-5 stroke-[2.2]" />
+          <span className="text-[10px] font-bold mt-1">
+            {currentRole === 'client' ? 'Pedidos' : 'Agenda'}
+          </span>
+        </button>
+
+        {/* Central Floating Action Button (Solicitar Faxina if client) */}
+        {currentRole === 'client' && (
+          <div className="-mt-5">
+            <button
+              onClick={() => setShowCreateJobModal(true)}
+              className="w-12 h-12 rounded-full bg-linear-to-tr from-[#0f9286] to-[#14a395] text-white flex items-center justify-center shadow-lg shadow-[#0f9286]/40 active:scale-95 transition cursor-pointer"
+              title="Solicitar serviço"
+            >
+              <Plus className="w-6 h-6 stroke-[3]" />
+            </button>
+          </div>
+        )}
+
+        {/* Tab 3: Chat com Badge */}
+        <button
+          onClick={() => setActiveTab('chat')}
+          className={`flex flex-col items-center justify-center py-1 px-3 rounded-xl relative transition cursor-pointer ${
+            activeTab === 'chat'
+              ? 'text-[#0f9286]'
+              : 'text-gray-400 hover:text-gray-600'
+          }`}
+        >
+          <div className="relative">
+            <MessageSquare className="w-5 h-5 stroke-[2.2]" />
+            <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-emerald-500 rounded-full ring-2 ring-white" />
+          </div>
+          <span className="text-[10px] font-bold mt-1">Chat</span>
+        </button>
+
+        {/* Tab 4: Perfil & Reputação */}
+        <button
+          onClick={() => setActiveTab('profile')}
+          className={`flex flex-col items-center justify-center py-1 px-3 rounded-xl transition cursor-pointer ${
+            activeTab === 'profile'
+              ? 'text-[#0f9286]'
+              : 'text-gray-400 hover:text-gray-600'
+          }`}
+        >
+          <User className="w-5 h-5 stroke-[2.2]" />
+          <span className="text-[10px] font-bold mt-1">Perfil</span>
+        </button>
+      </div>
+    </nav>
+  );
+};
+</file>
+
+<file path="components/ChatView.tsx">
+import React, { useState, useEffect, useRef } from 'react';
+import { useMarketplace } from '../context/MarketplaceContext';
+import { ChatMessage, CleaningJob } from '../types';
+import { 
+  Send, 
+  Sparkles, 
+  ShieldCheck, 
+  MapPin, 
+  Calendar, 
+  DollarSign, 
+  CheckCircle2, 
+  ArrowLeft, 
+  MessageCircle, 
+  Clock,
+  Check,
+  ChevronRight,
+  Plus
+} from 'lucide-react';
+
+export const ChatView: React.FC = () => {
+  const { 
+    currentRole, 
+    activeUser, 
+    jobs, 
+    messages, 
+    sendMessage, 
+    activeChatJobId, 
+    setActiveChatJobId, 
+    acceptProposal,
+    cleaners,
+    clientUser
+  } = useMarketplace();
+
+  const [inputText, setInputText] = useState('');
+  const [showOfferInput, setShowOfferInput] = useState(false);
+  const [offerValue, setOfferValue] = useState(170);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Group messages by job
+  const relevantJobs = jobs.filter(j => 
+    messages.some(m => m.jobId === j.id) ||
+    j.clientId === clientUser.id ||
+    j.acceptedCleanerId === activeUser.id ||
+    j.proposals.some(p => p.cleanerId === activeUser.id)
+  );
+
+  const selectedJob = relevantJobs.find(j => j.id === activeChatJobId) || relevantJobs[0];
+
+  useEffect(() => {
+    if (!activeChatJobId && relevantJobs.length > 0) {
+      setActiveChatJobId(relevantJobs[0].id);
+    }
+  }, [activeChatJobId, relevantJobs, setActiveChatJobId]);
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages, selectedJob]);
+
+  // Current counter-party profile
+  const isClient = currentRole === 'client';
+  const otherPartyName = isClient
+    ? selectedJob?.acceptedCleanerId
+      ? cleaners.find(c => c.id === selectedJob.acceptedCleanerId)?.name || 'Dona Rosa Oliveira'
+      : selectedJob?.proposals[0]?.cleanerName || 'Profissional'
+    : selectedJob?.clientName || 'Mariana Souza';
+
+  const otherPartyAvatar = isClient
+    ? selectedJob?.acceptedCleanerId
+      ? cleaners.find(c => c.id === selectedJob.acceptedCleanerId)?.avatar || cleaners[0].avatar
+      : selectedJob?.proposals[0]?.cleanerAvatar || cleaners[0].avatar
+    : selectedJob?.clientAvatar || clientUser.avatar;
+
+  const currentJobMessages = selectedJob 
+    ? messages.filter(m => m.jobId === selectedJob.id) 
+    : [];
+
+  const handleSend = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    if (!selectedJob || !inputText.trim()) return;
+
+    sendMessage(selectedJob.id, inputText);
+    setInputText('');
+  };
+
+  const handleSendPriceOffer = () => {
+    if (!selectedJob) return;
+    sendMessage(
+      selectedJob.id,
+      `Proponho fechar em R$ ${offerValue},00. O que acha?`,
+      offerValue
+    );
+    setShowOfferInput(false);
+  };
+
+  const quickReplies = isClient ? [
+    'Você traz produtos próprios ou prefere usar os meus?',
+    'A portaria já está autorizada para sua subida!',
+    'Pode focar especialmente na cozinha e banheiros?',
+    'Muito obrigada, excelente trabalho!',
+  ] : [
+    'Levo meus panos de microfibra limpos e produtos!',
+    'Já estou a caminho do endereço!',
+    'Cheguei no local!',
+    'Serviço finalizado! Ficou tudo brilhando ✨',
+  ];
+
+  return (
+    <div className="bg-white rounded-3xl border border-[#cde4dd] shadow-sm overflow-hidden flex flex-col md:flex-row h-[75vh] min-h-[550px]">
+      {/* Sidebar: Conversation List */}
+      <div className={`w-full md:w-80 border-r border-[#e2ece9] flex flex-col bg-[#f8faf9] ${
+        activeChatJobId ? 'hidden md:flex' : 'flex'
+      }`}>
+        <div className="p-4 border-b border-[#e2ece9] bg-white">
+          <h2 className="text-base font-bold text-[#162a45]">Mensagens & Negociações</h2>
+          <p className="text-xs text-gray-500">Comunicação direta em tempo real</p>
+        </div>
+
+        <div className="flex-1 overflow-y-auto divide-y divide-gray-100">
+          {relevantJobs.length === 0 ? (
+            <div className="p-6 text-center text-xs text-gray-400">
+              Nenhuma conversa ativa no momento.
+            </div>
+          ) : (
+            relevantJobs.map((job) => {
+              const lastMsg = [...messages].reverse().find(m => m.jobId === job.id);
+              const isSelected = selectedJob?.id === job.id;
+
+              return (
+                <button
+                  key={job.id}
+                  onClick={() => setActiveChatJobId(job.id)}
+                  className={`w-full p-4 text-left transition cursor-pointer flex items-start gap-3 ${
+                    isSelected ? 'bg-[#eaf6f3] border-l-4 border-[#0f9286]' : 'hover:bg-white'
+                  }`}
+                >
+                  <img
+                    src={isClient ? (job.proposals[0]?.cleanerAvatar || cleaners[0].avatar) : job.clientAvatar}
+                    alt=""
+                    className="w-11 h-11 rounded-xl object-cover ring-1 ring-gray-200 shrink-0"
+                  />
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between">
+                      <h4 className="font-bold text-xs sm:text-sm text-[#162a45] truncate">
+                        {isClient ? (job.proposals[0]?.cleanerName || 'Profissional') : job.clientName}
+                      </h4>
+                      <span className="text-[10px] text-gray-400 shrink-0">
+                        {lastMsg ? lastMsg.timestamp : 'Novo'}
+                      </span>
+                    </div>
+                    <p className="text-xs text-[#0f766e] font-semibold truncate mt-0.5">
+                      {job.title}
+                    </p>
+                    <p className="text-xs text-gray-500 truncate mt-0.5">
+                      {lastMsg ? lastMsg.text : 'Conversa iniciada'}
+                    </p>
+                  </div>
+                </button>
+              );
+            })
+          )}
+        </div>
+      </div>
+
+      {/* Main Chat Panel */}
+      <div className={`flex-1 flex flex-col bg-white ${
+        !activeChatJobId ? 'hidden md:flex' : 'flex'
+      }`}>
+        {selectedJob ? (
+          <>
+            {/* Top Bar with Counterparty Details */}
+            <div className="p-3.5 sm:p-4 border-b border-[#e2ece9] flex items-center justify-between bg-white z-10">
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => setActiveChatJobId(null)}
+                  className="md:hidden p-1.5 rounded-lg text-gray-500 hover:bg-gray-100"
+                >
+                  <ArrowLeft className="w-5 h-5" />
+                </button>
+                <img
+                  src={otherPartyAvatar}
+                  alt={otherPartyName}
+                  className="w-10 h-10 rounded-xl object-cover ring-2 ring-[#0f9286]/30"
+                />
+                <div>
+                  <div className="flex items-center gap-1.5">
+                    <h3 className="font-bold text-sm text-[#162a45]">{otherPartyName}</h3>
+                    <ShieldCheck className="w-4 h-4 text-[#0f9286]" />
+                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" title="Online" />
+                  </div>
+                  <p className="text-[11px] text-gray-500">
+                    {selectedJob.title} • <span className="font-semibold text-[#0f766e]">R$ {selectedJob.finalPrice || selectedJob.proposedPrice}</span>
+                  </p>
+                </div>
+              </div>
+
+              {/* Status pill & direct action */}
+              <div className="flex items-center gap-2">
+                <span className="text-[11px] font-bold px-2.5 py-1 rounded-full bg-[#e2f5f1] text-[#0f766e]">
+                  {selectedJob.status === 'open' && 'Negociando Propostas'}
+                  {selectedJob.status === 'accepted' && 'Confirmado'}
+                  {selectedJob.status === 'in_progress' && 'Em Andamento'}
+                  {selectedJob.status === 'completed' && 'Concluído'}
+                </span>
+              </div>
+            </div>
+
+            {/* InDrive Job Mini Summary Banner inside Chat */}
+            <div className="bg-[#f0faf7] px-4 py-2 border-b border-[#d8ebe5] flex items-center justify-between text-xs text-[#162a45]">
+              <div className="flex items-center gap-3">
+                <span className="flex items-center gap-1">
+                  <Calendar className="w-3.5 h-3.5 text-[#0f766e]" />
+                  {selectedJob.scheduledDate}
+                </span>
+                <span className="flex items-center gap-1">
+                  <MapPin className="w-3.5 h-3.5 text-[#0f766e]" />
+                  {selectedJob.address.neighborhood}
+                </span>
+              </div>
+              <button
+                onClick={() => setShowOfferInput(!showOfferInput)}
+                className="font-bold text-[#0f766e] hover:underline flex items-center gap-1 text-[11px] cursor-pointer"
+              >
+                <DollarSign className="w-3.5 h-3.5" />
+                Negociar Valor
+              </button>
+            </div>
+
+            {/* Counter-offer drawer inside chat */}
+            {showOfferInput && (
+              <div className="bg-white p-3 border-b border-[#cde5df] shadow-xs flex items-center justify-between gap-3 animate-in fade-in duration-150">
+                <span className="text-xs font-bold text-gray-700">Enviar nova proposta de valor:</span>
+                <div className="flex items-center gap-2">
+                  <div className="relative">
+                    <span className="absolute left-2 top-1/2 -translate-y-1/2 text-xs font-bold text-gray-400">R$</span>
+                    <input
+                      type="number"
+                      value={offerValue}
+                      onChange={(e) => setOfferValue(Number(e.target.value))}
+                      className="w-24 text-center font-bold text-sm bg-gray-50 border border-gray-200 rounded-lg py-1 px-3 pl-6"
+                    />
+                  </div>
+                  <button
+                    onClick={handleSendPriceOffer}
+                    className="px-3 py-1 bg-[#0f9286] text-white text-xs font-bold rounded-lg hover:bg-[#0c7c72]"
+                  >
+                    Enviar Oferta
+                  </button>
+                  <button
+                    onClick={() => setShowOfferInput(false)}
+                    className="text-xs text-gray-400 hover:text-gray-600"
+                  >
+                    Cancelar
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Chat Message History */}
+            <div className="flex-1 p-4 overflow-y-auto space-y-3 bg-[#fbfdfc]">
+              <div className="text-center my-2">
+                <span className="text-[10px] text-gray-400 uppercase tracking-widest bg-gray-100 px-2 py-0.5 rounded-full font-semibold">
+                  Início da conversa segura • Limpaépi
+                </span>
+              </div>
+
+              {currentJobMessages.map((msg) => {
+                const isMe = msg.senderId === activeUser.id;
+                const isSystem = msg.senderId === 'system';
+
+                if (isSystem) {
+                  return (
+                    <div key={msg.id} className="text-center my-3">
+                      <span className="inline-block text-xs bg-[#e2f5f1] text-[#0f766e] font-semibold px-3 py-1 rounded-full border border-[#c6eae0]">
+                        {msg.text}
+                      </span>
+                    </div>
+                  );
+                }
+
+                return (
+                  <div
+                    key={msg.id}
+                    className={`flex items-end gap-2 ${isMe ? 'justify-end' : 'justify-start'}`}
+                  >
+                    {!isMe && (
+                      <img
+                        src={msg.senderAvatar || otherPartyAvatar}
+                        alt=""
+                        className="w-7 h-7 rounded-full object-cover ring-1 ring-gray-200"
+                      />
+                    )}
+
+                    <div
+                      className={`max-w-[78%] rounded-2xl px-4 py-2.5 text-xs sm:text-sm leading-relaxed shadow-xs ${
+                        isMe
+                          ? 'bg-[#0f9286] text-white rounded-br-xs'
+                          : 'bg-white border border-[#e2ece9] text-[#162a45] rounded-bl-xs'
+                      }`}
+                    >
+                      {/* Price Proposal Card inside Chat */}
+                      {msg.isPriceOffer && (
+                        <div className={`p-2.5 rounded-xl mb-1.5 flex items-center justify-between gap-3 ${
+                          isMe ? 'bg-white/20 text-white' : 'bg-[#eaf6f3] text-[#0f766e]'
+                        }`}>
+                          <div>
+                            <span className="text-[10px] uppercase font-bold tracking-wider">Oferta de valor:</span>
+                            <div className="text-base font-black">R$ {msg.offerPrice || selectedJob.proposedPrice}</div>
+                          </div>
+                          {!isMe && selectedJob.status === 'open' && isClient && (
+                            <button
+                              onClick={() => {
+                                const prop = selectedJob.proposals[0];
+                                if (prop) acceptProposal(selectedJob.id, prop.id);
+                              }}
+                              className="px-2.5 py-1 bg-[#0f9286] hover:bg-[#0c7c72] text-white text-[11px] font-bold rounded-lg shadow-xs cursor-pointer"
+                            >
+                              Aceitar
+                            </button>
+                          )}
+                        </div>
+                      )}
+
+                      <p>{msg.text}</p>
+
+                      <div className={`text-[10px] mt-1 text-right flex items-center justify-end gap-1 ${
+                        isMe ? 'text-white/70' : 'text-gray-400'
+                      }`}>
+                        <span>{msg.timestamp}</span>
+                        {isMe && <Check className="w-3 h-3 stroke-[2.5]" />}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+              <div ref={messagesEndRef} />
+            </div>
+
+            {/* Quick Suggestions Chips */}
+            <div className="px-4 py-2 bg-white border-t border-gray-100 flex items-center gap-1.5 overflow-x-auto no-scrollbar">
+              <span className="text-[10px] font-bold text-gray-400 shrink-0 uppercase tracking-wider">Sugestões:</span>
+              {quickReplies.map((reply, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => sendMessage(selectedJob.id, reply)}
+                  className="shrink-0 text-xs bg-[#f2faf7] hover:bg-[#e4f5f0] text-[#0f766e] border border-[#d2ebe4] px-2.5 py-1 rounded-full font-medium transition cursor-pointer"
+                >
+                  {reply}
+                </button>
+              ))}
+            </div>
+
+            {/* Message Input Box */}
+            <form onSubmit={handleSend} className="p-3 sm:p-4 bg-white border-t border-[#e2ece9] flex items-center gap-2">
+              <input
+                type="text"
+                value={inputText}
+                onChange={(e) => setInputText(e.target.value)}
+                placeholder="Digite sua mensagem para negociar ou alinhar detalhes..."
+                className="flex-1 bg-[#f4f7f6] border border-gray-200 rounded-2xl px-4 py-2.5 text-xs sm:text-sm text-gray-800 focus:outline-none focus:border-[#0f9286] focus:bg-white transition"
+              />
+              <button
+                type="submit"
+                disabled={!inputText.trim()}
+                className="w-10 h-10 rounded-2xl bg-[#0f9286] hover:bg-[#0c7c72] disabled:opacity-40 text-white flex items-center justify-center transition cursor-pointer shadow-xs shrink-0"
+              >
+                <Send className="w-4 h-4" />
+              </button>
+            </form>
+          </>
+        ) : (
+          <div className="flex-1 flex flex-col items-center justify-center p-8 text-center text-gray-400">
+            <MessageCircle className="w-12 h-12 mb-3 text-gray-300" />
+            <p className="font-bold text-gray-600">Nenhuma conversa selecionada</p>
+            <p className="text-xs text-gray-400 mt-1">Selecione uma solicitação ao lado para abrir a conversa.</p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+</file>
+
+<file path="components/CleanerRadarView.tsx">
+import React, { useState } from 'react';
+import { useMarketplace } from '../context/MarketplaceContext';
+import { CleaningJob } from '../types';
+import { 
+  Radar, 
+  MapPin, 
+  Calendar, 
+  Clock, 
+  DollarSign, 
+  CheckCircle, 
+  Send, 
+  Star, 
+  ShieldCheck, 
+  MessageSquare, 
+  Sparkles, 
+  Dog, 
+  Sliders, 
+  ArrowRight,
+  TrendingUp,
+  X
+} from 'lucide-react';
+
+export const CleanerRadarView: React.FC = () => {
+  const { 
+    activeUser, 
+    cleaners, 
+    activeCleanerId, 
+    setActiveCleanerId, 
+    jobs, 
+    submitProposal, 
+    setActiveChatJobId, 
+    setActiveTab, 
+    updateJobStatus,
+    setReviewModalData,
+    clientUser
+  } = useMarketplace();
+
+  const [counterOfferModalJob, setCounterOfferModalJob] = useState<CleaningJob | null>(null);
+  const [counterPrice, setCounterPrice] = useState<number>(180);
+  const [counterNote, setCounterNote] = useState<string>('');
+  const [includesSupplies, setIncludesSupplies] = useState<boolean>(true);
+  const [filterRadius, setFilterRadius] = useState<number>(5);
+
+  // Available open jobs
+  const openJobs = jobs.filter(j => j.status === 'open');
+
+  // Jobs where this cleaner has an active engagement
+  const myAssignedJobs = jobs.filter(j => 
+    (j.acceptedCleanerId === activeUser.id || j.proposals.some(p => p.cleanerId === activeUser.id && p.status === 'accepted')) &&
+    (j.status === 'accepted' || j.status === 'in_progress')
+  );
+
+  const myCompletedJobs = jobs.filter(j => 
+    j.acceptedCleanerId === activeUser.id && j.status === 'completed'
+  );
+
+  const handleOpenCounterOffer = (job: CleaningJob) => {
+    setCounterOfferModalJob(job);
+    setCounterPrice(job.proposedPrice + 15);
+    setCounterNote(`Olá ${job.clientName.split(' ')[0]}! Faço por R$ ${job.proposedPrice + 15} levando produtos de limpeza ecológicos e microfibras.`);
+  };
+
+  const handleSendCounterOffer = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!counterOfferModalJob) return;
+
+    submitProposal(
+      counterOfferModalJob.id,
+      Number(counterPrice),
+      counterNote,
+      includesSupplies
+    );
+
+    setCounterOfferModalJob(null);
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* Top Professional Header & Profile Switcher */}
+      <div className="bg-white rounded-3xl p-5 sm:p-6 border border-[#cce4dd] shadow-xs">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="flex items-center gap-4">
+            <img
+              src={activeUser.avatar}
+              alt={activeUser.name}
+              className="w-16 h-16 rounded-2xl object-cover ring-3 ring-[#0f9286]/30 shadow-xs"
+            />
+            <div>
+              <div className="flex items-center gap-2">
+                <h2 className="text-xl font-bold text-[#162a45]">{activeUser.name}</h2>
+                <span className="text-xs bg-[#e2f5f1] text-[#0f766e] font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
+                  <ShieldCheck className="w-3.5 h-3.5" />
+                  Verificada
+                </span>
+              </div>
+              <p className="text-xs text-gray-500 mt-0.5">{activeUser.bio}</p>
+              <div className="flex flex-wrap items-center gap-3 text-xs text-gray-600 mt-2 font-medium">
+                <span className="flex items-center text-amber-500 font-bold gap-1">
+                  <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+                  {activeUser.rating}
+                </span>
+                <span>•</span>
+                <span>{activeUser.reviewCount} avaliações</span>
+                <span>•</span>
+                <span>{activeUser.completedJobsCount} faxinas realizadas</span>
+                <span>•</span>
+                <span className="text-[#0f766e] font-semibold">100% Autonomia</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Quick Persona Switcher for testing the MVP */}
+          <div className="bg-[#f0faf7] p-3 rounded-2xl border border-[#cde8e1] flex flex-col justify-center">
+            <label className="text-[11px] font-bold uppercase tracking-wider text-gray-500 mb-1.5">
+              Simular outro profissional:
+            </label>
+            <select
+              value={activeCleanerId}
+              onChange={(e) => setActiveCleanerId(e.target.value)}
+              className="text-xs font-semibold bg-white border border-[#c5e4dc] rounded-xl px-3 py-2 text-[#162a45] focus:outline-none focus:border-[#0f9286] cursor-pointer"
+            >
+              {cleaners.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.name} ({c.rating} ★ - {c.specialties[0]})
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+      </div>
+
+      {/* Active Jobs in Progress / Accepted */}
+      {myAssignedJobs.length > 0 && (
+        <section className="bg-white rounded-3xl p-5 sm:p-6 border border-[#cce4dd] shadow-xs">
+          <div className="flex items-center justify-between mb-4 pb-3 border-b border-gray-100">
+            <div>
+              <h3 className="text-base font-bold text-[#162a45]">Serviços Confirmados na sua Agenda</h3>
+              <p className="text-xs text-gray-500">Acompanhe e confirme o andamento das suas faxinas</p>
+            </div>
+            <span className="text-xs bg-[#e2f5f1] text-[#0f766e] font-bold px-2.5 py-1 rounded-full">
+              {myAssignedJobs.length} agendado(s)
+            </span>
+          </div>
+
+          <div className="space-y-3">
+            {myAssignedJobs.map((job) => (
+              <div key={job.id} className="p-4 rounded-2xl bg-[#f5fbf9] border border-[#d2ebe4] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="text-xs font-bold uppercase tracking-wider text-[#0f766e]">
+                      {job.scheduledDate}
+                    </span>
+                    <span className="text-xs text-gray-400">•</span>
+                    <span className="text-xs font-medium text-gray-600">{job.address.neighborhood}</span>
+                  </div>
+                  <h4 className="text-sm font-bold text-[#162a45]">{job.title}</h4>
+                  <p className="text-xs text-gray-500 mt-0.5">Cliente: {job.clientName}</p>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <div className="text-right mr-2">
+                    <span className="text-[10px] text-gray-400 uppercase font-bold">Seu ganho</span>
+                    <p className="text-base font-black text-[#0f766e]">R$ {job.finalPrice || job.proposedPrice}</p>
+                  </div>
+
+                  <button
+                    onClick={() => {
+                      setActiveChatJobId(job.id);
+                      setActiveTab('chat');
+                    }}
+                    className="p-2.5 rounded-xl bg-white border border-[#cde5df] text-[#0f766e] hover:bg-[#eaf7f4] transition cursor-pointer"
+                    title="Conversar com o cliente"
+                  >
+                    <MessageSquare className="w-4 h-4" />
+                  </button>
+
+                  {job.status === 'accepted' ? (
+                    <button
+                      onClick={() => updateJobStatus(job.id, 'in_progress')}
+                      className="px-4 py-2 rounded-xl bg-[#0f9286] hover:bg-[#0c7c72] text-white text-xs font-bold transition cursor-pointer shadow-xs"
+                    >
+                      Iniciar Faxina
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => {
+                        updateJobStatus(job.id, 'completed');
+                        setReviewModalData({
+                          jobId: job.id,
+                          toUserId: clientUser.id,
+                          toUserName: clientUser.name,
+                          toUserAvatar: clientUser.avatar,
+                          targetRole: 'client'
+                        });
+                      }}
+                      className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition cursor-pointer shadow-xs"
+                    >
+                      Finalizar & Avaliar
+                    </button>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* Radar de Oportunidades (inDrive Style) */}
+      <section className="bg-white rounded-3xl p-5 sm:p-6 border border-[#cce4dd] shadow-xs">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
+          <div className="flex items-center gap-2.5">
+            <div className="w-9 h-9 rounded-xl bg-[#e2f5f1] text-[#0f766e] flex items-center justify-center">
+              <Radar className="w-5 h-5 animate-spin duration-3000" />
+            </div>
+            <div>
+              <h3 className="text-lg font-bold text-[#162a45]">Radar de Oportunidades</h3>
+              <p className="text-xs text-gray-500">Pedidos abertos por clientes esperando propostas</p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-gray-500 font-medium">Raio:</span>
+            {[3, 5, 10].map((r) => (
+              <button
+                key={r}
+                onClick={() => setFilterRadius(r)}
+                className={`px-2.5 py-1 text-xs font-bold rounded-lg transition cursor-pointer ${
+                  filterRadius === r
+                    ? 'bg-[#0f9286] text-white'
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                }`}
+              >
+                {r} km
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {openJobs.length === 0 ? (
+          <div className="p-8 text-center bg-[#f8faf9] rounded-2xl border border-dashed border-gray-200">
+            <p className="text-sm font-bold text-gray-700">Nenhum pedido aberto no momento.</p>
+            <p className="text-xs text-gray-500 mt-1">
+              Alterne para o perfil de cliente e clique em "Solicitar serviço" para ver novas oportunidades surgirem no radar!
+            </p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 gap-4">
+            {openJobs.map((job) => {
+              const alreadyProposed = job.proposals.some(p => p.cleanerId === activeUser.id);
+              const myExistingProposal = job.proposals.find(p => p.cleanerId === activeUser.id);
+
+              return (
+                <div
+                  key={job.id}
+                  className="bg-[#fafffd] rounded-2xl p-5 border border-[#cbe6df] hover:border-[#0f9286] shadow-xs transition flex flex-col justify-between gap-4"
+                >
+                  <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
+                    <div className="flex items-start gap-3.5">
+                      <img
+                        src={job.clientAvatar}
+                        alt={job.clientName}
+                        className="w-12 h-12 rounded-xl object-cover ring-2 ring-gray-100"
+                      />
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <h4 className="font-bold text-sm sm:text-base text-[#162a45]">{job.title}</h4>
+                          <span className="text-xs text-gray-400">• {job.createdAt}</span>
+                        </div>
+                        <div className="flex flex-wrap items-center gap-2.5 text-xs text-gray-600 mt-1">
+                          <span className="font-medium text-gray-700">{job.clientName}</span>
+                          <span className="flex items-center text-amber-500 font-bold gap-0.5">
+                            <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
+                            {job.clientRating}
+                          </span>
+                          <span>•</span>
+                          <span className="flex items-center gap-1 font-semibold text-[#0f766e]">
+                            <MapPin className="w-3.5 h-3.5" />
+                            {job.address.neighborhood} (~{job.address.distanceKm || 2.1} km)
+                          </span>
+                        </div>
+
+                        {/* Imóvel tags */}
+                        <div className="flex flex-wrap gap-1.5 mt-2.5">
+                          <span className="text-[11px] bg-white border border-gray-200 px-2 py-0.5 rounded-md font-medium text-gray-700">
+                            {job.rooms.bedrooms} quartos • {job.rooms.bathrooms} banheiros
+                          </span>
+                          <span className="text-[11px] bg-white border border-gray-200 px-2 py-0.5 rounded-md font-medium text-gray-700 flex items-center gap-1">
+                            <Calendar className="w-3 h-3 text-gray-400" />
+                            {job.scheduledDate} ({job.timeSlot === 'manha' ? 'Manhã' : job.timeSlot === 'tarde' ? 'Tarde' : 'Dia todo'})
+                          </span>
+                          {job.rooms.hasPets && (
+                            <span className="text-[11px] bg-amber-50 border border-amber-200 text-amber-800 px-2 py-0.5 rounded-md font-medium flex items-center gap-1">
+                              <Dog className="w-3 h-3" />
+                              Tem pet
+                            </span>
+                          )}
+                          {job.bringSupplies && (
+                            <span className="text-[11px] bg-[#e2f5f1] border border-[#bfe7df] text-[#0f766e] px-2 py-0.5 rounded-md font-medium">
+                              Levar produtos
+                            </span>
+                          )}
+                        </div>
+
+                        {job.description && (
+                          <p className="text-xs text-gray-600 mt-2 italic bg-white p-2 rounded-xl border border-gray-100">
+                            "{job.description}"
+                          </p>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Price Offer Card inDrive style */}
+                    <div className="bg-[#f0faf7] p-3.5 rounded-2xl border border-[#c7e9e1] text-right sm:min-w-[170px] flex flex-col justify-center">
+                      <span className="text-[10px] text-gray-500 uppercase font-bold tracking-wider">
+                        Oferta do Cliente
+                      </span>
+                      <div className="text-2xl font-black text-[#0f766e]">
+                        R$ {job.proposedPrice}
+                      </div>
+                      <span className="text-[10px] text-gray-500">
+                        {job.proposals.length} proposta(s) já enviadas
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Cleaner inDrive actions */}
+                  <div className="pt-3 border-t border-gray-100 flex flex-wrap items-center justify-between gap-2">
+                    {alreadyProposed ? (
+                      <div className="flex items-center gap-2 text-xs font-bold text-[#0f766e] bg-[#eaf6f3] px-3 py-1.5 rounded-xl">
+                        <CheckCircle className="w-4 h-4 text-[#0f9286]" />
+                        <span>Sua proposta de R$ {myExistingProposal?.price} já foi enviada!</span>
+                      </div>
+                    ) : (
+                      <span className="text-xs text-gray-500 font-medium">
+                        Você decide: aceite o valor ou contraproponha!
+                      </span>
+                    )}
+
+                    <div className="flex items-center gap-2 w-full sm:w-auto">
+                      <button
+                        onClick={() => {
+                          setActiveChatJobId(job.id);
+                          setActiveTab('chat');
+                        }}
+                        className="p-2.5 rounded-xl border border-gray-200 text-gray-700 hover:bg-gray-50 text-xs font-bold transition cursor-pointer"
+                        title="Tirar dúvidas no chat"
+                      >
+                        <MessageSquare className="w-4 h-4 text-gray-600" />
+                      </button>
+
+                      <button
+                        onClick={() => handleOpenCounterOffer(job)}
+                        className="flex-1 sm:flex-none px-3.5 py-2 rounded-xl border border-[#0f9286] text-[#0f766e] hover:bg-[#eaf7f4] text-xs font-bold transition cursor-pointer"
+                      >
+                        Contrapropor Valor
+                      </button>
+
+                      <button
+                        onClick={() => submitProposal(job.id, job.proposedPrice, 'Aceito o valor proposto pelo cliente!', false)}
+                        className="flex-1 sm:flex-none px-4 py-2 rounded-xl bg-[#0f9286] hover:bg-[#0c7c72] text-white text-xs font-bold shadow-xs transition cursor-pointer flex items-center justify-center gap-1.5"
+                      >
+                        <CheckCircle className="w-4 h-4" />
+                        <span>Aceitar R$ {job.proposedPrice}</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </section>
+
+      {/* Contraproposta Modal (inDrive Style) */}
+      {counterOfferModalJob && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#0f1d30]/65 backdrop-blur-xs">
+          <div 
+            className="w-full max-w-md bg-white rounded-3xl p-6 shadow-2xl border border-[#cbe6df]"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between pb-3 mb-3 border-b border-gray-100">
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-bold uppercase tracking-wider text-[#0f766e] bg-[#e2f5f1] px-2 py-0.5 rounded">
+                  inDrive Limpeza
+                </span>
+                <h3 className="font-bold text-base text-[#162a45]">Fazer Contraproposta</h3>
+              </div>
+              <button
+                onClick={() => setCounterOfferModalJob(null)}
+                className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 hover:bg-gray-200"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <p className="text-xs text-gray-500 mb-4">
+              Cliente <strong>{counterOfferModalJob.clientName}</strong> ofereceu <strong>R$ {counterOfferModalJob.proposedPrice}</strong>. 
+              Qual valor você deseja propor?
+            </p>
+
+            <form onSubmit={handleSendCounterOffer} className="space-y-4">
+              <div className="bg-[#f0faf7] p-4 rounded-2xl border border-[#cbebe3] text-center">
+                <span className="text-xs text-gray-500 font-medium">Seu valor sugerido</span>
+                <div className="flex items-center justify-center gap-3 mt-2">
+                  <button
+                    type="button"
+                    onClick={() => setCounterPrice(Math.max(80, counterPrice - 10))}
+                    className="w-9 h-9 rounded-xl bg-white border border-[#c5e4dc] font-bold text-gray-700"
+                  >
+                    -10
+                  </button>
+                  <div className="relative">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-bold text-gray-400">R$</span>
+                    <input
+                      type="number"
+                      value={counterPrice}
+                      onChange={(e) => setCounterPrice(Number(e.target.value))}
+                      className="w-32 text-center text-2xl font-black text-[#0f766e] bg-white border-2 border-[#0f9286] rounded-xl py-1.5 px-4 focus:outline-none"
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setCounterPrice(counterPrice + 10)}
+                    className="w-9 h-9 rounded-xl bg-white border border-[#c5e4dc] font-bold text-gray-700"
+                  >
+                    +10
+                  </button>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
+                  Justificativa / Diferencial (opcional)
+                </label>
+                <textarea
+                  rows={2}
+                  value={counterNote}
+                  onChange={(e) => setCounterNote(e.target.value)}
+                  placeholder="Ex: Levo produtos biodegradáveis, aspirador de pó e chego no horário combinado..."
+                  className="w-full text-xs bg-gray-50 border border-gray-200 rounded-xl p-3 focus:bg-white focus:outline-none focus:border-[#0f9286]"
+                />
+              </div>
+
+              <div className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  id="suppliesCheck"
+                  checked={includesSupplies}
+                  onChange={(e) => setIncludesSupplies(e.target.checked)}
+                  className="rounded text-[#0f9286] focus:ring-[#0f9286]"
+                />
+                <label htmlFor="suppliesCheck" className="text-xs text-gray-700 font-medium">
+                  Inclui meus produtos e materiais próprios de limpeza
+                </label>
+              </div>
+
+              <div className="pt-2">
+                <button
+                  type="submit"
+                  className="w-full py-3.5 px-4 rounded-xl bg-[#0f9286] hover:bg-[#0c7c72] text-white font-bold text-sm shadow-md transition cursor-pointer flex items-center justify-center gap-2"
+                >
+                  <Send className="w-4 h-4" />
+                  <span>Enviar Proposta de R$ {counterPrice}</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+</file>
+
+<file path="components/ClientExploreView.tsx">
+import React, { useState } from 'react';
+import { useMarketplace } from '../context/MarketplaceContext';
+import { CleaningJob, JobProposal } from '../types';
+import { 
+  Plus, 
+  Sparkles, 
+  Star, 
+  ShieldCheck, 
+  MapPin, 
+  Clock, 
+  Calendar, 
+  MessageSquare, 
+  CheckCircle, 
+  ArrowRight, 
+  ChevronRight,
+  SlidersHorizontal,
+  Home,
+  Award,
+  DollarSign,
+  UserCheck
+} from 'lucide-react';
+
+export const ClientExploreView: React.FC = () => {
+  const { 
+    clientUser, 
+    jobs, 
+    cleaners, 
+    setShowCreateJobModal, 
+    acceptProposal, 
+    setActiveChatJobId, 
+    setActiveTab, 
+    setSelectedJobForDetail,
+    setReviewModalData,
+    updateJobStatus
+  } = useMarketplace();
+
+  const [filterType, setFilterType] = useState<string>('todos');
+
+  // Filter client's jobs
+  const clientJobs = jobs.filter(j => j.clientId === clientUser.id);
+  const activeJob = clientJobs.find(j => j.status === 'open' || j.status === 'accepted' || j.status === 'in_progress');
+  const completedJobs = clientJobs.filter(j => j.status === 'completed');
+
+  return (
+    <div className="space-y-6">
+      {/* Hero Banner for Client */}
+      <div className="relative overflow-hidden rounded-3xl bg-linear-to-br from-[#0f9286] via-[#11998e] to-[#0c7c72] text-white p-6 sm:p-8 shadow-lg shadow-[#0f9286]/15">
+        <div className="relative z-10 max-w-xl">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/15 text-white text-xs font-semibold backdrop-blur-xs mb-3">
+            <Sparkles className="w-3.5 h-3.5 text-[#a8ffeb]" />
+            <span>Marketplace estilo inDrive</span>
+          </div>
+
+          <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight leading-snug">
+            Sua casa impecável, com o preço que você propõe.
+          </h1>
+
+          <p className="text-sm text-white/85 mt-2 leading-relaxed">
+            Publique as características do imóvel, ofereça um valor e receba propostas imediatas de profissionais verificados perto de você.
+          </p>
+
+          <div className="mt-5 flex flex-wrap items-center gap-3">
+            <button
+              onClick={() => setShowCreateJobModal(true)}
+              id="btn-solicitar-hero"
+              className="py-3 px-5 rounded-xl bg-white text-[#0f766e] font-bold text-sm shadow-md hover:bg-[#eaf7f4] active:scale-95 transition cursor-pointer flex items-center gap-2"
+            >
+              <Plus className="w-4 h-4 stroke-[3]" />
+              <span>Solicitar serviço de limpeza</span>
+            </button>
+            <div className="text-xs text-white/80 flex items-center gap-1.5">
+              <ShieldCheck className="w-4 h-4 text-[#a8ffeb]" />
+              <span>Profissionais 100% com antecedentes verificados</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Decorative circle */}
+        <div className="absolute -right-12 -bottom-12 w-64 h-64 rounded-full bg-white/10 blur-2xl pointer-events-none" />
+      </div>
+
+      {/* Active Requests & In-flight proposals */}
+      {activeJob && (
+        <section className="bg-white rounded-3xl p-5 sm:p-6 border border-[#cde5de] shadow-xs">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 pb-4 border-b border-gray-100">
+            <div>
+              <div className="flex items-center gap-2">
+                <span className={`text-[11px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full ${
+                  activeJob.status === 'open' 
+                    ? 'bg-amber-100 text-amber-800' 
+                    : activeJob.status === 'accepted'
+                    ? 'bg-[#e2f5f1] text-[#0f766e]'
+                    : 'bg-emerald-100 text-emerald-800'
+                }`}>
+                  {activeJob.status === 'open' && '• Aguardando Propostas'}
+                  {activeJob.status === 'accepted' && '✓ Profissional Contratado'}
+                  {activeJob.status === 'in_progress' && '🧹 Limpeza em Andamento'}
+                </span>
+                <span className="text-xs text-gray-400">{activeJob.createdAt}</span>
+              </div>
+              <h2 className="text-lg font-bold text-[#162a45] mt-1">{activeJob.title}</h2>
+              <div className="flex flex-wrap items-center gap-3 text-xs text-gray-500 mt-1">
+                <span className="flex items-center gap-1">
+                  <MapPin className="w-3.5 h-3.5 text-gray-400" />
+                  {activeJob.address.neighborhood}
+                </span>
+                <span className="flex items-center gap-1">
+                  <Calendar className="w-3.5 h-3.5 text-gray-400" />
+                  {activeJob.scheduledDate}
+                </span>
+                <span className="flex items-center gap-1 font-semibold text-[#0f766e]">
+                  <DollarSign className="w-3.5 h-3.5" />
+                  Sua oferta: R$ {activeJob.proposedPrice}
+                </span>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => {
+                  setActiveChatJobId(activeJob.id);
+                  setActiveTab('chat');
+                }}
+                className="px-3.5 py-2 rounded-xl border border-[#d2e6e1] text-[#0f766e] bg-[#f4faf8] hover:bg-[#eaf6f3] text-xs font-bold flex items-center gap-1.5 transition cursor-pointer"
+              >
+                <MessageSquare className="w-3.5 h-3.5" />
+                <span>Abrir Chat</span>
+              </button>
+
+              {activeJob.status === 'accepted' && (
+                <button
+                  onClick={() => updateJobStatus(activeJob.id, 'in_progress')}
+                  className="px-3.5 py-2 rounded-xl bg-[#0f9286] text-white text-xs font-bold hover:bg-[#0c7c72] transition cursor-pointer"
+                >
+                  Iniciar Serviço
+                </button>
+              )}
+
+              {activeJob.status === 'in_progress' && (
+                <button
+                  onClick={() => {
+                    updateJobStatus(activeJob.id, 'completed');
+                    const acceptedCleaner = cleaners.find(c => c.id === activeJob.acceptedCleanerId) || cleaners[0];
+                    setReviewModalData({
+                      jobId: activeJob.id,
+                      toUserId: acceptedCleaner.id,
+                      toUserName: acceptedCleaner.name,
+                      toUserAvatar: acceptedCleaner.avatar,
+                      targetRole: 'cleaner'
+                    });
+                  }}
+                  className="px-3.5 py-2 rounded-xl bg-emerald-600 text-white text-xs font-bold hover:bg-emerald-700 transition cursor-pointer"
+                >
+                  Concluir & Avaliar
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* Proposals List for Open Job */}
+          {activeJob.status === 'open' && (
+            <div>
+              <div className="flex items-center justify-between mb-3">
+                <p className="text-xs font-bold text-gray-700 uppercase tracking-wider">
+                  Propostas Recebidas ({activeJob.proposals.length})
+                </p>
+                <span className="text-xs text-emerald-600 font-medium animate-pulse">
+                  ● Atualizando em tempo real
+                </span>
+              </div>
+
+              {activeJob.proposals.length === 0 ? (
+                <div className="bg-[#f8faf9] p-6 rounded-2xl text-center border border-dashed border-gray-200">
+                  <div className="w-10 h-10 rounded-full bg-[#e2f5f1] text-[#0f766e] flex items-center justify-center mx-auto mb-2 animate-bounce">
+                    <Sparkles className="w-5 h-5" />
+                  </div>
+                  <p className="text-sm font-bold text-gray-700">Seu pedido foi enviado aos profissionais locais!</p>
+                  <p className="text-xs text-gray-500 mt-1 max-w-sm mx-auto">
+                    Profissionais em {activeJob.address.neighborhood} estão analisando sua solicitação de R$ {activeJob.proposedPrice}. Em instantes as propostas aparecerão aqui.
+                  </p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+                  {activeJob.proposals.map((prop) => (
+                    <div
+                      key={prop.id}
+                      className="bg-[#fafffd] rounded-2xl p-4 border border-[#cbe6df] shadow-xs flex flex-col justify-between hover:border-[#0f9286] transition"
+                    >
+                      <div>
+                        <div className="flex items-start justify-between gap-3 mb-2.5">
+                          <div className="flex items-center gap-3">
+                            <img
+                              src={prop.cleanerAvatar}
+                              alt={prop.cleanerName}
+                              className="w-12 h-12 rounded-xl object-cover ring-2 ring-[#0f9286]/20"
+                            />
+                            <div>
+                              <div className="flex items-center gap-1.5">
+                                <h4 className="font-bold text-sm text-[#162a45]">{prop.cleanerName}</h4>
+                                <ShieldCheck className="w-4 h-4 text-[#0f9286]" />
+                              </div>
+                              <div className="flex items-center gap-2 text-xs text-gray-600 mt-0.5">
+                                <span className="flex items-center text-amber-600 font-bold gap-0.5">
+                                  <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+                                  {prop.cleanerRating}
+                                </span>
+                                <span>•</span>
+                                <span>{prop.cleanerReviewCount} avaliações</span>
+                                <span>•</span>
+                                <span>{prop.cleanerDistanceKm} km</span>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Price Tag */}
+                          <div className="text-right">
+                            <div className="text-base font-extrabold text-[#0f766e]">
+                              R$ {prop.price}
+                            </div>
+                            <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${
+                              prop.isCounterOffer 
+                                ? 'bg-amber-100 text-amber-800' 
+                                : 'bg-[#d6f2eb] text-[#0f766e]'
+                            }`}>
+                              {prop.isCounterOffer ? 'Contraproposta' : 'Aceitou seu valor'}
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* Badges */}
+                        <div className="flex flex-wrap gap-1.5 mb-2.5">
+                          {prop.cleanerBadges.map((badge, bIdx) => (
+                            <span key={bIdx} className="text-[10px] bg-white border border-[#d2ece5] text-[#162a45] px-2 py-0.5 rounded-md font-medium">
+                              {badge}
+                            </span>
+                          ))}
+                          {prop.includesSupplies && (
+                            <span className="text-[10px] bg-emerald-50 text-emerald-700 border border-emerald-200 px-2 py-0.5 rounded-md font-medium">
+                              + Leva produtos
+                            </span>
+                          )}
+                        </div>
+
+                        {/* Note */}
+                        <p className="text-xs text-gray-600 bg-white p-2.5 rounded-xl border border-gray-100 mb-3 italic">
+                          "{prop.note}"
+                        </p>
+                      </div>
+
+                      {/* Actions */}
+                      <div className="flex items-center gap-2 pt-2 border-t border-gray-100">
+                        <button
+                          onClick={() => {
+                            setActiveChatJobId(activeJob.id);
+                            setActiveTab('chat');
+                          }}
+                          className="flex-1 py-2 px-3 rounded-xl border border-[#cce4dd] text-[#0f766e] text-xs font-bold hover:bg-[#eaf5f2] transition cursor-pointer flex items-center justify-center gap-1.5"
+                        >
+                          <MessageSquare className="w-3.5 h-3.5" />
+                          <span>Negociar / Chat</span>
+                        </button>
+
+                        <button
+                          onClick={() => acceptProposal(activeJob.id, prop.id)}
+                          className="flex-1 py-2 px-3 rounded-xl bg-[#0f9286] hover:bg-[#0c7c72] text-white text-xs font-bold shadow-xs transition cursor-pointer flex items-center justify-center gap-1"
+                        >
+                          <CheckCircle className="w-3.5 h-3.5" />
+                          <span>Aceitar R$ {prop.price}</span>
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* When Accepted */}
+          {activeJob.status === 'accepted' && (
+            <div className="bg-[#eef9f6] p-4 rounded-2xl border border-[#cce8e0] flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-[#0f9286] text-white flex items-center justify-center">
+                  <CheckCircle className="w-5 h-5" />
+                </div>
+                <div>
+                  <h4 className="text-sm font-bold text-[#162a45]">Profissional Confirmada</h4>
+                  <p className="text-xs text-gray-600">
+                    O profissional chegará em {activeJob.scheduledDate}. Valor fechado em R$ {activeJob.finalPrice || activeJob.proposedPrice}.
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => {
+                  setActiveChatJobId(activeJob.id);
+                  setActiveTab('chat');
+                }}
+                className="py-2 px-3.5 rounded-xl bg-white border border-[#bfe2d8] text-[#0f766e] font-bold text-xs hover:bg-[#eaf6f3] transition cursor-pointer"
+              >
+                Ver no Chat
+              </button>
+            </div>
+          )}
+        </section>
+      )}
+
+      {/* Featured Professionals Directory (Autonomia e Reputação) */}
+      <section>
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h2 className="text-lg font-bold text-[#162a45]">Profissionais Verificados na sua Região</h2>
+            <p className="text-xs text-gray-500">Compare avaliações, experiências e especialidades</p>
+          </div>
+          <span className="text-xs bg-[#e2f5f1] text-[#0f766e] font-bold px-2.5 py-1 rounded-lg">
+            {cleaners.length} disponíveis
+          </span>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {cleaners.map((cleaner) => (
+            <div
+              key={cleaner.id}
+              className="bg-white rounded-3xl p-5 border border-[#e2ece9] shadow-xs hover:shadow-md transition flex flex-col justify-between"
+            >
+              <div>
+                <div className="flex items-start justify-between gap-3 mb-3">
+                  <div className="flex items-center gap-3">
+                    <img
+                      src={cleaner.avatar}
+                      alt={cleaner.name}
+                      className="w-14 h-14 rounded-2xl object-cover ring-2 ring-[#0f9286]/20 shadow-xs"
+                    />
+                    <div>
+                      <div className="flex items-center gap-1.5">
+                        <h3 className="font-bold text-base text-[#162a45]">{cleaner.name}</h3>
+                        {cleaner.verified && (
+                          <span title="Documentos e antecedentes verificados">
+                            <ShieldCheck className="w-4 h-4 text-[#0f9286]" />
+                          </span>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-2 text-xs text-gray-600 mt-0.5">
+                        <span className="flex items-center text-amber-600 font-bold gap-0.5">
+                          <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+                          {cleaner.rating}
+                        </span>
+                        <span>•</span>
+                        <span>{cleaner.reviewCount} avaliações</span>
+                        <span>•</span>
+                        <span>{cleaner.completedJobsCount} faxinas</span>
+                      </div>
+                      <p className="text-xs text-gray-400 mt-0.5 flex items-center gap-1">
+                        <MapPin className="w-3 h-3 text-gray-400" />
+                        {cleaner.location}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="text-right">
+                    <span className="text-[10px] text-gray-400 uppercase font-semibold">Preço médio</span>
+                    <p className="text-sm font-bold text-[#0f766e]">
+                      ~R$ {cleaner.hourlyRateHint ? cleaner.hourlyRateHint * 4 : 160}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Bio */}
+                <p className="text-xs text-gray-600 line-clamp-2 mb-3 leading-relaxed">
+                  {cleaner.bio}
+                </p>
+
+                {/* Badges & Specialties */}
+                <div className="flex flex-wrap gap-1.5 mb-4">
+                  {cleaner.badges.map((badge, bIdx) => (
+                    <span
+                      key={bIdx}
+                      className="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-[#eef8f5] text-[#0f766e] border border-[#d2ece4]"
+                    >
+                      {badge}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              {/* Action */}
+              <div className="pt-3 border-t border-gray-100 flex items-center justify-between gap-2">
+                <span className="text-[11px] text-gray-500">Membro desde {cleaner.memberSince}</span>
+                <button
+                  onClick={() => setShowCreateJobModal(true)}
+                  className="py-2 px-3.5 rounded-xl bg-[#0f9286] hover:bg-[#0c7c72] text-white text-xs font-bold transition cursor-pointer flex items-center gap-1.5"
+                >
+                  <span>Solicitar Serviço</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Completed Services & Mutual Reviews */}
+      {completedJobs.length > 0 && (
+        <section className="bg-white rounded-3xl p-5 sm:p-6 border border-[#e2ece9] shadow-xs">
+          <h3 className="text-base font-bold text-[#162a45] mb-3">Histórico de Serviços & Reputação</h3>
+          <div className="space-y-3">
+            {completedJobs.map((job) => (
+              <div key={job.id} className="p-4 rounded-2xl bg-[#f8faf9] border border-gray-200">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-bold text-gray-800">{job.title}</span>
+                    <span className="text-[10px] bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full font-bold">
+                      Concluído
+                    </span>
+                  </div>
+                  <span className="text-xs font-bold text-[#0f766e]">R$ {job.finalPrice || job.proposedPrice}</span>
+                </div>
+
+                {job.clientReview && (
+                  <div className="bg-white p-3 rounded-xl border border-gray-100 mt-2">
+                    <div className="flex items-center justify-between text-xs mb-1">
+                      <span className="font-bold text-gray-700">Sua avaliação para o prestador:</span>
+                      <span className="flex items-center text-amber-500 font-bold">
+                        <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400 mr-1" />
+                        {job.clientReview.rating}.0
+                      </span>
+                    </div>
+                    <p className="text-xs text-gray-600 italic">"{job.clientReview.comment}"</p>
+                  </div>
+                )}
+
+                {job.cleanerReview && (
+                  <div className="bg-[#f0faf7] p-3 rounded-xl border border-[#cdebe3] mt-2">
+                    <div className="flex items-center justify-between text-xs mb-1">
+                      <span className="font-bold text-[#0f766e]">Avaliação recebida do profissional:</span>
+                      <span className="flex items-center text-amber-500 font-bold">
+                        <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400 mr-1" />
+                        {job.cleanerReview.rating}.0
+                      </span>
+                    </div>
+                    <p className="text-xs text-gray-600 italic">"{job.cleanerReview.comment}"</p>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+    </div>
+  );
+};
+</file>
+
+<file path="components/ConceptModal.tsx">
+import React from 'react';
+import { useMarketplace } from '../context/MarketplaceContext';
+import { X, CheckCircle2, Sparkles, ArrowRight, ShieldCheck, Clock, Users, Award } from 'lucide-react';
+
+export const ConceptModal: React.FC = () => {
+  const {
+    showPresentationModal,
+    setShowPresentationModal,
+    setRole,
+    setActiveTab,
+    setShowCreateJobModal
+  } = useMarketplace();
+
+  if (!showPresentationModal) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-[#0f1d30]/60 backdrop-blur-xs animate-in fade-in duration-200">
+      <div 
+        className="relative w-full max-w-4xl bg-[#edf8f5] rounded-3xl shadow-2xl border border-[#cbe7e0] overflow-hidden flex flex-col md:flex-row"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Close Button */}
+        <button
+          onClick={() => setShowPresentationModal(false)}
+          className="absolute top-4 right-4 z-10 w-9 h-9 rounded-full bg-white/80 hover:bg-white text-gray-600 hover:text-gray-900 flex items-center justify-center shadow-xs transition cursor-pointer"
+          aria-label="Fechar modal"
+        >
+          <X className="w-5 h-5" />
+        </button>
+
+        {/* Left Side: Presentation typography matching screenshot */}
+        <div className="flex-1 p-6 sm:p-10 flex flex-col justify-between">
+          <div>
+            <div className="inline-block px-3.5 py-1.5 rounded-lg bg-[#dcf2ed] text-[#0f766e] text-xs font-bold tracking-wider uppercase mb-6">
+              LIMPA + APP
+            </div>
+
+            <h1 className="text-3xl sm:text-5xl font-black text-[#162a45] tracking-tight mb-4">
+              Limpaépi
+            </h1>
+
+            <p className="text-lg sm:text-xl text-[#2d4766] font-medium leading-relaxed mb-8 max-w-md">
+              Uma nova forma de conectar pessoas e serviços de limpeza.
+            </p>
+
+            <div className="space-y-3 mb-8 text-xs text-gray-500 max-w-xs">
+              <p className="flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 text-[#0f9286]" />
+                Autonomia real para o profissional negociar
+              </p>
+              <p className="flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 text-[#0f9286]" />
+                Praticidade e comparação de preços para o cliente
+              </p>
+              <p className="flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 text-[#0f9286]" />
+                Construção mútua de reputação transparente
+              </p>
+            </div>
+          </div>
+
+          <div className="pt-6 border-t border-[#cee3dd]">
+            <p className="text-xs text-gray-400 mb-1">
+              Apresentação conceitual para desenvolvimento • Nome provisório em validação
+            </p>
+            <p className="text-sm font-bold text-[#0f9286]">
+              Hoje, uma plataforma web. Amanhã, o app da sua limpeza.
+            </p>
+          </div>
+        </div>
+
+        {/* Right Side: Visual Card matching the screenshot */}
+        <div className="w-full md:w-[380px] bg-[#dcf2ed]/60 p-6 sm:p-8 flex items-center justify-center border-t md:border-t-0 md:border-l border-[#cbe5de]">
+          <div className="w-full bg-white rounded-2xl p-6 sm:p-7 shadow-lg border border-[#e2ece9] flex flex-col gap-3.5">
+            <button
+              onClick={() => {
+                setShowPresentationModal(false);
+                setRole('cleaner');
+                setActiveTab('explore');
+              }}
+              className="w-full py-3.5 px-4 rounded-xl bg-[#eaf7f4] hover:bg-[#d8f0ea] text-[#0f766e] font-bold text-sm text-center transition cursor-pointer flex items-center justify-between"
+            >
+              <span>Limpeza disponível</span>
+              <span className="text-xs bg-white text-[#0f766e] px-2 py-0.5 rounded-full font-bold">Ver</span>
+            </button>
+
+            <button
+              onClick={() => {
+                setShowPresentationModal(false);
+                setRole('client');
+                setActiveTab('explore');
+              }}
+              className="w-full py-3.5 px-4 rounded-xl bg-[#f4f7f6] hover:bg-[#e9f0ee] text-[#162a45] font-bold text-sm text-center transition cursor-pointer flex items-center justify-between"
+            >
+              <span>Profissionais</span>
+              <span className="text-xs bg-[#e2ece9] text-[#162a45] px-2 py-0.5 rounded-full font-bold">140+</span>
+            </button>
+
+            <button
+              onClick={() => {
+                setShowPresentationModal(false);
+                setRole('client');
+                setShowCreateJobModal(true);
+              }}
+              className="w-full py-3.5 px-4 rounded-xl bg-[#f4f7f6] hover:bg-[#e9f0ee] text-[#162a45] font-bold text-sm text-center transition cursor-pointer flex items-center justify-between"
+            >
+              <span>Escolha e agende</span>
+              <Sparkles className="w-4 h-4 text-[#0f9286]" />
+            </button>
+
+            <div className="pt-2">
+              <button
+                onClick={() => setShowPresentationModal(false)}
+                className="w-full py-3.5 px-4 rounded-xl bg-[#0f9286] hover:bg-[#0c7c72] active:scale-[0.98] text-white font-bold text-sm text-center shadow-md shadow-[#0f9286]/20 transition cursor-pointer flex items-center justify-center gap-2"
+              >
+                <span>Continuar</span>
+                <ArrowRight className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+</file>
+
+<file path="components/CreateJobModal.tsx">
+import React, { useState } from 'react';
+import { useMarketplace } from '../context/MarketplaceContext';
+import { ServiceType, TimeSlot } from '../types';
+import { 
+  X, 
+  Sparkles, 
+  Building, 
+  Home, 
+  Briefcase, 
+  Calendar, 
+  Clock, 
+  MapPin, 
+  DollarSign, 
+  Check, 
+  Plus, 
+  Minus, 
+  Info,
+  Dog,
+  Shirt,
+  Sparkle
+} from 'lucide-react';
+
+export const CreateJobModal: React.FC = () => {
+  const { showCreateJobModal, setShowCreateJobModal, createJob, setSelectedJobForDetail, jobs } = useMarketplace();
+
+  const [serviceType, setServiceType] = useState<ServiceType>('padrao');
+  const [propertyType, setPropertyType] = useState<'apartamento' | 'casa' | 'comercial'>('apartamento');
+  const [bedrooms, setBedrooms] = useState(2);
+  const [bathrooms, setBathrooms] = useState(2);
+  const [livingRooms, setLivingRooms] = useState(1);
+  const [hasPets, setHasPets] = useState(true);
+  const [areaM2, setAreaM2] = useState(70);
+  
+  const [scheduledDate, setScheduledDate] = useState('Amanhã');
+  const [timeSlot, setTimeSlot] = useState<TimeSlot>('manha');
+  const [neighborhood, setNeighborhood] = useState('Botafogo');
+  const [city, setCity] = useState('Rio de Janeiro');
+  
+  const [bringSupplies, setBringSupplies] = useState(false);
+  const [needsIroning, setNeedsIroning] = useState(false);
+  const [needsWindowCleaning, setNeedsWindowCleaning] = useState(false);
+  const [description, setDescription] = useState('');
+
+  // inDrive price suggestion calculation
+  const basePrice = 120 + (bedrooms * 20) + (bathrooms * 15) + (needsIroning ? 25 : 0) + (bringSupplies ? 20 : 0) + (serviceType === 'pesada' ? 30 : serviceType === 'pos_obra' ? 70 : 0);
+  const [proposedPrice, setProposedPrice] = useState(basePrice);
+
+  if (!showCreateJobModal) return null;
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const serviceTitles: Record<ServiceType, string> = {
+      padrao: 'Faxina padrão',
+      pesada: 'Limpeza pesada detalhada',
+      pos_obra: 'Limpeza especializada pós-obra',
+      comercial: 'Limpeza comercial / escritório',
+      passadoria: 'Passadoria de roupas e organização',
+    };
+
+    const newJobId = createJob({
+      title: `${serviceTitles[serviceType]} em ${propertyType} (${bedrooms}q, ${bathrooms}b)`,
+      serviceType,
+      propertyType,
+      rooms: {
+        bedrooms,
+        bathrooms,
+        livingRooms,
+        hasPets,
+        areaM2,
+      },
+      address: {
+        neighborhood: neighborhood.trim() || 'Bairro Centro',
+        city: city.trim() || 'Rio de Janeiro',
+        distanceKm: 1.8,
+      },
+      scheduledDate,
+      timeSlot,
+      description: description.trim() || 'Limpeza completa com atenção aos detalhes do dia a dia.',
+      bringSupplies,
+      needsIroning,
+      needsWindowCleaning,
+      proposedPrice: Number(proposedPrice) || basePrice,
+    });
+
+    setShowCreateJobModal(false);
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-[#0f1d30]/65 backdrop-blur-xs overflow-y-auto">
+      <div 
+        className="relative w-full max-w-2xl bg-white rounded-3xl shadow-2xl border border-[#d6e7e2] my-8 overflow-hidden"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Header */}
+        <div className="bg-[#0f9286] px-6 py-5 text-white flex items-center justify-between">
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="text-[11px] font-bold uppercase tracking-wider bg-white/20 px-2 py-0.5 rounded">
+                Estilo inDrive
+              </span>
+              <h2 className="text-xl font-bold">Solicitar Serviço de Limpeza</h2>
+            </div>
+            <p className="text-xs text-white/80 mt-0.5">
+              Defina as necessidades e proponha o valor. Os profissionais vão responder em minutos!
+            </p>
+          </div>
+          <button
+            onClick={() => setShowCreateJobModal(false)}
+            className="w-8 h-8 rounded-full bg-white/15 hover:bg-white/25 flex items-center justify-center transition cursor-pointer text-white"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit} className="p-6 space-y-6 max-h-[78vh] overflow-y-auto">
+          {/* 1. Tipo de Limpeza */}
+          <div>
+            <label className="block text-xs font-bold uppercase tracking-wider text-gray-500 mb-2">
+              1. Tipo de Serviço
+            </label>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+              {[
+                { id: 'padrao', label: 'Faxina Padrão', desc: 'Manutenção residencial' },
+                { id: 'pesada', label: 'Limpeza Pesada', desc: 'Gordura e detalhes' },
+                { id: 'pos_obra', label: 'Pós-Obra', desc: 'Poeira fina e resíduos' },
+                { id: 'comercial', label: 'Comercial', desc: 'Escritórios e salas' },
+                { id: 'passadoria', label: 'Passadoria', desc: 'Roupas e camisas' },
+              ].map((item) => (
+                <button
+                  type="button"
+                  key={item.id}
+                  onClick={() => {
+                    setServiceType(item.id as ServiceType);
+                    // update benchmark
+                    setProposedPrice(120 + (bedrooms * 20) + (bathrooms * 15) + (item.id === 'pesada' ? 30 : item.id === 'pos_obra' ? 70 : 0));
+                  }}
+                  className={`p-3 rounded-xl border text-left transition cursor-pointer ${
+                    serviceType === item.id
+                      ? 'border-[#0f9286] bg-[#eaf7f4] text-[#0f766e]'
+                      : 'border-gray-200 hover:border-gray-300 bg-white text-gray-700'
+                  }`}
+                >
+                  <p className="font-bold text-xs sm:text-sm">{item.label}</p>
+                  <p className="text-[11px] text-gray-500 mt-0.5">{item.desc}</p>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* 2. Imóvel & Cômodos */}
+          <div>
+            <label className="block text-xs font-bold uppercase tracking-wider text-gray-500 mb-2">
+              2. Detalhes do Imóvel
+            </label>
+            <div className="grid grid-cols-3 gap-2 mb-3">
+              {[
+                { id: 'apartamento', label: 'Apartamento', icon: Building },
+                { id: 'casa', label: 'Casa', icon: Home },
+                { id: 'comercial', label: 'Comercial', icon: Briefcase },
+              ].map((item) => {
+                const Icon = item.icon;
+                return (
+                  <button
+                    type="button"
+                    key={item.id}
+                    onClick={() => setPropertyType(item.id as any)}
+                    className={`py-2 px-3 rounded-xl border flex items-center justify-center gap-1.5 text-xs font-bold transition cursor-pointer ${
+                      propertyType === item.id
+                        ? 'border-[#0f9286] bg-[#eaf7f4] text-[#0f766e]'
+                        : 'border-gray-200 bg-white text-gray-700'
+                    }`}
+                  >
+                    <Icon className="w-3.5 h-3.5" />
+                    <span>{item.label}</span>
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Room counters */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 bg-[#f8faf9] p-3 rounded-2xl border border-gray-100">
+              <div className="flex items-center justify-between p-2 bg-white rounded-xl border border-gray-100">
+                <span className="text-xs font-medium text-gray-700">Quartos</span>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setBedrooms(Math.max(1, bedrooms - 1))}
+                    className="w-6 h-6 rounded-md bg-gray-100 flex items-center justify-center text-gray-600 hover:bg-gray-200"
+                  >
+                    <Minus className="w-3 h-3" />
+                  </button>
+                  <span className="text-xs font-bold w-4 text-center">{bedrooms}</span>
+                  <button
+                    type="button"
+                    onClick={() => setBedrooms(bedrooms + 1)}
+                    className="w-6 h-6 rounded-md bg-gray-100 flex items-center justify-center text-gray-600 hover:bg-gray-200"
+                  >
+                    <Plus className="w-3 h-3" />
+                  </button>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between p-2 bg-white rounded-xl border border-gray-100">
+                <span className="text-xs font-medium text-gray-700">Banheiros</span>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setBathrooms(Math.max(1, bathrooms - 1))}
+                    className="w-6 h-6 rounded-md bg-gray-100 flex items-center justify-center text-gray-600 hover:bg-gray-200"
+                  >
+                    <Minus className="w-3 h-3" />
+                  </button>
+                  <span className="text-xs font-bold w-4 text-center">{bathrooms}</span>
+                  <button
+                    type="button"
+                    onClick={() => setBathrooms(bathrooms + 1)}
+                    className="w-6 h-6 rounded-md bg-gray-100 flex items-center justify-center text-gray-600 hover:bg-gray-200"
+                  >
+                    <Plus className="w-3 h-3" />
+                  </button>
+                </div>
+              </div>
+
+              <div className="col-span-2 sm:col-span-1 flex items-center justify-between p-2 bg-white rounded-xl border border-gray-100">
+                <span className="text-xs font-medium text-gray-700 flex items-center gap-1">
+                  <Dog className="w-3.5 h-3.5 text-amber-500" />
+                  Tem Pets?
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setHasPets(!hasPets)}
+                  className={`px-3 py-1 text-xs font-bold rounded-lg transition cursor-pointer ${
+                    hasPets ? 'bg-[#0f9286] text-white' : 'bg-gray-200 text-gray-600'
+                  }`}
+                >
+                  {hasPets ? 'Sim' : 'Não'}
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* 3. Extras e Inclusões */}
+          <div>
+            <label className="block text-xs font-bold uppercase tracking-wider text-gray-500 mb-2">
+              3. O que precisa ser feito?
+            </label>
+            <div className="flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={() => setBringSupplies(!bringSupplies)}
+                className={`px-3 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 border transition cursor-pointer ${
+                  bringSupplies
+                    ? 'border-[#0f9286] bg-[#eaf7f4] text-[#0f766e]'
+                    : 'border-gray-200 bg-white text-gray-600 hover:border-gray-300'
+                }`}
+              >
+                <Sparkle className="w-3.5 h-3.5" />
+                <span>Profissional leva produtos (+R$20)</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setNeedsIroning(!needsIroning)}
+                className={`px-3 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 border transition cursor-pointer ${
+                  needsIroning
+                    ? 'border-[#0f9286] bg-[#eaf7f4] text-[#0f766e]'
+                    : 'border-gray-200 bg-white text-gray-600 hover:border-gray-300'
+                }`}
+              >
+                <Shirt className="w-3.5 h-3.5" />
+                <span>Passar roupas (+R$25)</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setNeedsWindowCleaning(!needsWindowCleaning)}
+                className={`px-3 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 border transition cursor-pointer ${
+                  needsWindowCleaning
+                    ? 'border-[#0f9286] bg-[#eaf7f4] text-[#0f766e]'
+                    : 'border-gray-200 bg-white text-gray-600 hover:border-gray-300'
+                }`}
+              >
+                <Sparkles className="w-3.5 h-3.5" />
+                <span>Vidros / Sacada</span>
+              </button>
+            </div>
+          </div>
+
+          {/* 4. Data e Local */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-bold uppercase tracking-wider text-gray-500 mb-1.5">
+                Data & Período
+              </label>
+              <div className="grid grid-cols-2 gap-2">
+                <select
+                  value={scheduledDate}
+                  onChange={(e) => setScheduledDate(e.target.value)}
+                  className="w-full text-xs font-medium bg-gray-50 border border-gray-200 rounded-xl p-2.5 text-gray-800"
+                >
+                  <option value="Hoje, urgente">Hoje (Urgente)</option>
+                  <option value="Amanhã">Amanhã</option>
+                  <option value="Quinta-feira">Quinta-feira</option>
+                  <option value="Sexta-feira">Sexta-feira</option>
+                  <option value="Sábado">Sábado</option>
+                  <option value="Próxima semana">Próxima semana</option>
+                </select>
+
+                <select
+                  value={timeSlot}
+                  onChange={(e) => setTimeSlot(e.target.value as TimeSlot)}
+                  className="w-full text-xs font-medium bg-gray-50 border border-gray-200 rounded-xl p-2.5 text-gray-800"
+                >
+                  <option value="manha">Manhã (08h às 12h)</option>
+                  <option value="tarde">Tarde (13h às 17h)</option>
+                  <option value="dia_todo">Dia todo (08h às 16h)</option>
+                </select>
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold uppercase tracking-wider text-gray-500 mb-1.5">
+                Localização (Bairro)
+              </label>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={neighborhood}
+                  onChange={(e) => setNeighborhood(e.target.value)}
+                  placeholder="Ex: Copacabana, Botafogo..."
+                  className="w-full text-xs font-medium bg-gray-50 border border-gray-200 rounded-xl p-2.5 text-gray-800"
+                  required
+                />
+                <input
+                  type="text"
+                  value={city}
+                  onChange={(e) => setCity(e.target.value)}
+                  placeholder="Cidade"
+                  className="w-28 text-xs font-medium bg-gray-50 border border-gray-200 rounded-xl p-2.5 text-gray-800"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* 5. inDrive Suggested Price & Counter-offer mechanism */}
+          <div className="bg-[#f0faf7] p-4 sm:p-5 rounded-2xl border border-[#cde8e1]">
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-1.5">
+                <DollarSign className="w-5 h-5 text-[#0f9286]" />
+                <span className="text-sm font-bold text-[#162a45]">Sua Proposta de Preço</span>
+              </div>
+              <span className="text-xs bg-[#daf2ec] text-[#0f766e] px-2 py-0.5 rounded-full font-bold">
+                Média sugerida: R$ {basePrice}
+              </span>
+            </div>
+
+            <p className="text-xs text-gray-500 mb-3">
+              Você define quanto quer pagar! Os profissionais podem aceitar na hora ou enviar contrapropostas.
+            </p>
+
+            <div className="flex items-center justify-center gap-3">
+              <button
+                type="button"
+                onClick={() => setProposedPrice(Math.max(80, proposedPrice - 10))}
+                className="w-10 h-10 rounded-xl bg-white border border-[#cbe5de] text-gray-700 font-bold hover:bg-gray-100 flex items-center justify-center transition"
+              >
+                -10
+              </button>
+
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 font-bold text-sm">R$</span>
+                <input
+                  type="number"
+                  value={proposedPrice}
+                  onChange={(e) => setProposedPrice(Number(e.target.value))}
+                  className="w-36 text-center text-2xl font-black text-[#0f766e] bg-white border-2 border-[#0f9286] rounded-2xl py-2 px-6 focus:outline-none shadow-xs"
+                />
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setProposedPrice(proposedPrice + 10)}
+                className="w-10 h-10 rounded-xl bg-white border border-[#cbe5de] text-gray-700 font-bold hover:bg-gray-100 flex items-center justify-center transition"
+              >
+                +10
+              </button>
+            </div>
+          </div>
+
+          {/* Observações */}
+          <div>
+            <label className="block text-xs font-bold uppercase tracking-wider text-gray-500 mb-1.5">
+              Observações adicionais (opcional)
+            </label>
+            <textarea
+              rows={2}
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="Ex: Focar na cozinha e azulejos do banheiro; tenho aspirador em casa..."
+              className="w-full text-xs bg-gray-50 border border-gray-200 rounded-xl p-3 text-gray-800 focus:bg-white focus:outline-none focus:border-[#0f9286]"
+            />
+          </div>
+
+          {/* Submit */}
+          <div className="pt-2">
+            <button
+              type="submit"
+              className="w-full py-4 px-6 rounded-2xl bg-[#0f9286] hover:bg-[#0c7c72] active:scale-[0.99] text-white font-bold text-sm sm:text-base shadow-lg shadow-[#0f9286]/30 transition cursor-pointer flex items-center justify-center gap-2"
+            >
+              <Sparkles className="w-5 h-5" />
+              <span>Publicar Pedido por R$ {proposedPrice}</span>
+            </button>
+            <p className="text-center text-[11px] text-gray-400 mt-2">
+              Nenhum valor é cobrado antecipadamente. Você só confirma após escolher o profissional.
+            </p>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+};
+</file>
+
+<file path="components/Header.tsx">
+import React from 'react';
+import { useMarketplace } from '../context/MarketplaceContext';
+import { Sparkles, Plus, ArrowRightLeft, ShieldCheck, HelpCircle, UserCheck } from 'lucide-react';
+
+export const Header: React.FC = () => {
+  const {
+    currentRole,
+    setRole,
+    activeUser,
+    clientUser,
+    cleaners,
+    activeCleanerId,
+    setActiveCleanerId,
+    setShowCreateJobModal,
+    setShowPresentationModal,
+    setActiveTab,
+  } = useMarketplace();
+
+  return (
+    <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-[#e2ece9] shadow-xs">
+      {/* Top accent teal stripe */}
+      <div className="h-1 bg-linear-to-r from-[#0f9286] via-[#11998e] to-[#38ef7d]" />
+
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-3">
+        {/* Brand identity matching the design */}
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => setActiveTab('explore')}
+            className="flex items-center gap-2.5 text-left group transition cursor-pointer"
+          >
+            <div className="w-10 h-10 rounded-xl bg-linear-to-br from-[#0f9286] to-[#147a70] flex items-center justify-center text-white shadow-sm shadow-[#0f9286]/30 group-hover:scale-105 transition-transform">
+              <Sparkles className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <div className="flex items-center gap-1.5">
+                <span className="text-xl font-extrabold tracking-tight text-[#162a45]">Limpaépi</span>
+                <span className="text-[10px] uppercase font-bold tracking-wider px-1.5 py-0.5 rounded-md bg-[#e2f5f1] text-[#0f766e]">
+                  Limpa + App
+                </span>
+              </div>
+              <p className="text-[11px] text-gray-500 hidden sm:block">Marketplace inteligente de limpeza</p>
+            </div>
+          </button>
+        </div>
+
+        {/* Action Buttons & Role Toggle */}
+        <div className="flex items-center gap-2 sm:gap-3">
+          {/* Concept presentation button from screenshot */}
+          <button
+            onClick={() => setShowPresentationModal(true)}
+            className="hidden md:flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1.5 rounded-lg border border-[#d2e7e2] text-[#0f766e] bg-[#f2faf8] hover:bg-[#e4f5f1] transition cursor-pointer"
+            title="Ver conceito Limpa + App"
+          >
+            <HelpCircle className="w-3.5 h-3.5" />
+            <span>Ver Conceito</span>
+          </button>
+
+          {/* Quick primary buttons requested: "Solicitar serviço" & "Prestar serviço" */}
+          {currentRole === 'client' ? (
+            <>
+              <button
+                onClick={() => setShowCreateJobModal(true)}
+                id="btn-solicitar-servico-header"
+                className="flex items-center gap-1.5 bg-[#0f9286] hover:bg-[#0c7c72] active:scale-95 text-white text-xs sm:text-sm font-semibold px-3 sm:px-4 py-2 rounded-xl shadow-xs transition cursor-pointer"
+              >
+                <Plus className="w-4 h-4 stroke-[2.5]" />
+                <span>Solicitar serviço</span>
+              </button>
+
+              <button
+                onClick={() => setRole('cleaner')}
+                className="hidden sm:flex items-center gap-1.5 border border-[#d3e5e1] hover:border-[#0f9286] text-[#162a45] hover:text-[#0f9286] text-xs font-semibold px-3 py-2 rounded-xl bg-white transition cursor-pointer"
+                title="Mudar para visão de prestador"
+              >
+                <ArrowRightLeft className="w-3.5 h-3.5 text-[#0f9286]" />
+                <span>Prestar serviço</span>
+              </button>
+            </>
+          ) : (
+            <>
+              <button
+                onClick={() => {
+                  setRole('client');
+                  setShowCreateJobModal(true);
+                }}
+                className="hidden sm:flex items-center gap-1.5 border border-[#d3e5e1] hover:border-[#0f9286] text-[#162a45] hover:text-[#0f9286] text-xs font-semibold px-3 py-2 rounded-xl bg-white transition cursor-pointer"
+              >
+                <Plus className="w-3.5 h-3.5 text-[#0f9286]" />
+                <span>Solicitar serviço</span>
+              </button>
+
+              <div className="flex items-center gap-1.5 bg-[#eaf7f4] text-[#0f766e] text-xs font-semibold px-3 py-1.5 rounded-xl border border-[#cbebe3]">
+                <ShieldCheck className="w-4 h-4 text-[#0f9286]" />
+                <span>Modo Profissional</span>
+              </div>
+            </>
+          )}
+
+          {/* Role & Persona Switcher */}
+          <div className="flex items-center bg-[#f0f6f5] p-1 rounded-xl border border-[#dfebe8]">
+            <button
+              onClick={() => setRole('client')}
+              className={`px-2.5 py-1 text-xs font-bold rounded-lg transition cursor-pointer ${
+                currentRole === 'client'
+                  ? 'bg-white text-[#0f766e] shadow-xs'
+                  : 'text-gray-500 hover:text-gray-800'
+              }`}
+            >
+              Cliente
+            </button>
+            <button
+              onClick={() => setRole('cleaner')}
+              className={`px-2.5 py-1 text-xs font-bold rounded-lg transition cursor-pointer ${
+                currentRole === 'cleaner'
+                  ? 'bg-[#0f9286] text-white shadow-xs'
+                  : 'text-gray-500 hover:text-gray-800'
+              }`}
+            >
+              Profissional
+            </button>
+          </div>
+
+          {/* User Avatar & selector */}
+          <div className="relative group">
+            <button
+              onClick={() => setActiveTab('profile')}
+              className="flex items-center gap-2 p-1 pl-1.5 pr-2 rounded-xl hover:bg-[#eaf5f2] transition border border-transparent hover:border-[#d2e6e1] cursor-pointer"
+            >
+              <img
+                src={activeUser.avatar}
+                alt={activeUser.name}
+                className="w-8 h-8 rounded-full object-cover ring-2 ring-[#0f9286]/30"
+              />
+              <div className="hidden lg:block text-left text-xs leading-tight">
+                <p className="font-bold text-[#162a45] max-w-[90px] truncate">{activeUser.name.split(' ')[0]}</p>
+                <p className="text-[10px] text-[#0f766e] font-medium">{activeUser.rating} ★</p>
+              </div>
+            </button>
+          </div>
+        </div>
+      </div>
+    </header>
+  );
+};
+</file>
+
+<file path="components/MyJobsView.tsx">
+import React, { useState } from 'react';
+import { useMarketplace } from '../context/MarketplaceContext';
+import { CleaningJob } from '../types';
+import { 
+  ClipboardList, 
+  MapPin, 
+  Calendar, 
+  Clock, 
+  DollarSign, 
+  MessageSquare, 
+  CheckCircle, 
+  Star, 
+  Sparkles,
+  ArrowRight
+} from 'lucide-react';
+
+export const MyJobsView: React.FC = () => {
+  const { 
+    currentRole, 
+    activeUser, 
+    jobs, 
+    clientUser, 
+    cleaners, 
+    setActiveChatJobId, 
+    setActiveTab, 
+    setShowCreateJobModal,
+    updateJobStatus,
+    setReviewModalData
+  } = useMarketplace();
+
+  const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'completed'>('all');
+
+  const isClient = currentRole === 'client';
+
+  // Filter jobs for active persona
+  const userJobs = jobs.filter(job => {
+    if (isClient) {
+      return job.clientId === clientUser.id;
+    } else {
+      return (
+        job.acceptedCleanerId === activeUser.id ||
+        job.proposals.some(p => p.cleanerId === activeUser.id)
+      );
+    }
+  });
+
+  const filteredJobs = userJobs.filter(job => {
+    if (statusFilter === 'active') {
+      return job.status === 'open' || job.status === 'accepted' || job.status === 'in_progress';
+    }
+    if (statusFilter === 'completed') {
+      return job.status === 'completed';
+    }
+    return true;
+  });
+
+  return (
+    <div className="space-y-6">
+      {/* Top Header */}
+      <div className="bg-white rounded-3xl p-5 sm:p-6 border border-[#cde4dd] shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h2 className="text-xl font-bold text-[#162a45]">
+            {isClient ? 'Meus Pedidos de Limpeza' : 'Minha Agenda & Propostas'}
+          </h2>
+          <p className="text-xs text-gray-500 mt-0.5">
+            {isClient
+              ? 'Acompanhe suas solicitações, propostas recebidas e serviços agendados'
+              : 'Gerencie os serviços aceitos, propostas enviadas e histórico de ganhos'}
+          </p>
+        </div>
+
+        {/* Filter buttons */}
+        <div className="flex items-center gap-1.5 bg-[#f0faf7] p-1 rounded-xl border border-[#cdebe3]">
+          {(['all', 'active', 'completed'] as const).map((filter) => (
+            <button
+              key={filter}
+              onClick={() => setStatusFilter(filter)}
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer ${
+                statusFilter === filter
+                  ? 'bg-white text-[#0f766e] shadow-xs'
+                  : 'text-gray-500 hover:text-gray-800'
+              }`}
+            >
+              {filter === 'all' && 'Todos'}
+              {filter === 'active' && 'Em Andamento'}
+              {filter === 'completed' && 'Concluídos'}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Jobs List */}
+      {filteredJobs.length === 0 ? (
+        <div className="bg-white rounded-3xl p-10 text-center border border-[#e2ece9] shadow-xs">
+          <ClipboardList className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+          <h3 className="font-bold text-gray-700 text-base">Nenhum serviço encontrado</h3>
+          <p className="text-xs text-gray-500 mt-1 max-w-sm mx-auto">
+            {isClient
+              ? 'Você ainda não possui pedidos nesta categoria. Solicite um novo serviço agora!'
+              : 'Você ainda não demonstrou interesse em pedidos nesta categoria.'}
+          </p>
+
+          {isClient && (
+            <button
+              onClick={() => setShowCreateJobModal(true)}
+              className="mt-4 px-4 py-2 bg-[#0f9286] text-white text-xs font-bold rounded-xl hover:bg-[#0c7c72] transition"
+            >
+              Solicitar Limpeza
+            </button>
+          )}
+        </div>
+      ) : (
+        <div className="space-y-4">
+          {filteredJobs.map((job) => {
+            const acceptedCleaner = cleaners.find(c => c.id === job.acceptedCleanerId);
+
+            return (
+              <div
+                key={job.id}
+                className="bg-white rounded-3xl p-5 sm:p-6 border border-[#cde4dd] shadow-xs hover:border-[#0f9286] transition"
+              >
+                <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 pb-4 border-b border-gray-100">
+                  <div>
+                    <div className="flex items-center gap-2 mb-1.5">
+                      <span className={`text-[10px] uppercase font-bold tracking-wider px-2.5 py-0.5 rounded-full ${
+                        job.status === 'open'
+                          ? 'bg-amber-100 text-amber-800'
+                          : job.status === 'accepted'
+                          ? 'bg-[#e2f5f1] text-[#0f766e]'
+                          : job.status === 'in_progress'
+                          ? 'bg-blue-100 text-blue-800'
+                          : 'bg-emerald-100 text-emerald-800'
+                      }`}>
+                        {job.status === 'open' && 'Aguardando Propostas'}
+                        {job.status === 'accepted' && 'Profissional Confirmado'}
+                        {job.status === 'in_progress' && 'Em Andamento'}
+                        {job.status === 'completed' && 'Concluído'}
+                      </span>
+                      <span className="text-xs text-gray-400">{job.createdAt}</span>
+                    </div>
+
+                    <h3 className="font-bold text-base text-[#162a45]">{job.title}</h3>
+                    
+                    <div className="flex flex-wrap items-center gap-3 text-xs text-gray-500 mt-1">
+                      <span className="flex items-center gap-1 font-medium text-gray-700">
+                        <MapPin className="w-3.5 h-3.5 text-[#0f9286]" />
+                        {job.address.neighborhood}, {job.address.city}
+                      </span>
+                      <span>•</span>
+                      <span className="flex items-center gap-1">
+                        <Calendar className="w-3.5 h-3.5 text-[#0f9286]" />
+                        {job.scheduledDate}
+                      </span>
+                      <span>•</span>
+                      <span>
+                        {job.rooms.bedrooms}q, {job.rooms.bathrooms}b
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Price */}
+                  <div className="sm:text-right">
+                    <span className="text-[10px] text-gray-400 uppercase font-semibold">Valor acordado</span>
+                    <p className="text-xl font-black text-[#0f766e]">
+                      R$ {job.finalPrice || job.proposedPrice}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Counterparty & Actions Row */}
+                <div className="pt-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div className="flex items-center gap-3">
+                    {isClient ? (
+                      acceptedCleaner ? (
+                        <div className="flex items-center gap-2.5">
+                          <img
+                            src={acceptedCleaner.avatar}
+                            alt=""
+                            className="w-9 h-9 rounded-xl object-cover ring-1 ring-gray-200"
+                          />
+                          <div>
+                            <span className="text-[11px] text-gray-400">Profissional contratada:</span>
+                            <p className="text-xs font-bold text-[#162a45]">{acceptedCleaner.name}</p>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="text-xs text-gray-500 font-medium">
+                          {job.proposals.length} proposta(s) recebida(s) de profissionais
+                        </div>
+                      )
+                    ) : (
+                      <div className="flex items-center gap-2.5">
+                        <img
+                          src={job.clientAvatar}
+                          alt=""
+                          className="w-9 h-9 rounded-xl object-cover ring-1 ring-gray-200"
+                        />
+                        <div>
+                          <span className="text-[11px] text-gray-400">Cliente solicitante:</span>
+                          <p className="text-xs font-bold text-[#162a45]">{job.clientName}</p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Action buttons */}
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => {
+                        setActiveChatJobId(job.id);
+                        setActiveTab('chat');
+                      }}
+                      className="px-3 py-2 rounded-xl border border-[#cde4dd] text-[#0f766e] hover:bg-[#eaf7f4] text-xs font-bold flex items-center gap-1.5 transition cursor-pointer"
+                    >
+                      <MessageSquare className="w-3.5 h-3.5" />
+                      <span>Chat</span>
+                    </button>
+
+                    {job.status === 'accepted' && (
+                      <button
+                        onClick={() => updateJobStatus(job.id, 'in_progress')}
+                        className="px-3.5 py-2 rounded-xl bg-[#0f9286] text-white text-xs font-bold hover:bg-[#0c7c72] transition"
+                      >
+                        Iniciar Faxina
+                      </button>
+                    )}
+
+                    {job.status === 'in_progress' && (
+                      <button
+                        onClick={() => {
+                          updateJobStatus(job.id, 'completed');
+                          if (isClient) {
+                            setReviewModalData({
+                              jobId: job.id,
+                              toUserId: acceptedCleaner?.id || cleaners[0].id,
+                              toUserName: acceptedCleaner?.name || cleaners[0].name,
+                              toUserAvatar: acceptedCleaner?.avatar || cleaners[0].avatar,
+                              targetRole: 'cleaner'
+                            });
+                          } else {
+                            setReviewModalData({
+                              jobId: job.id,
+                              toUserId: clientUser.id,
+                              toUserName: clientUser.name,
+                              toUserAvatar: clientUser.avatar,
+                              targetRole: 'client'
+                            });
+                          }
+                        }}
+                        className="px-3.5 py-2 rounded-xl bg-emerald-600 text-white text-xs font-bold hover:bg-emerald-700 transition"
+                      >
+                        Finalizar & Avaliar
+                      </button>
+                    )}
+
+                    {job.status === 'completed' && !job.clientReview && isClient && (
+                      <button
+                        onClick={() => {
+                          setReviewModalData({
+                            jobId: job.id,
+                            toUserId: acceptedCleaner?.id || cleaners[0].id,
+                            toUserName: acceptedCleaner?.name || cleaners[0].name,
+                            toUserAvatar: acceptedCleaner?.avatar || cleaners[0].avatar,
+                            targetRole: 'cleaner'
+                          });
+                        }}
+                        className="px-3 py-2 rounded-xl bg-amber-500 text-white text-xs font-bold hover:bg-amber-600 transition flex items-center gap-1"
+                      >
+                        <Star className="w-3.5 h-3.5 fill-white" />
+                        <span>Avaliar</span>
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+};
+</file>
+
+<file path="components/ProfileView.tsx">
+import React from 'react';
+import { useMarketplace } from '../context/MarketplaceContext';
+import { 
+  Star, 
+  ShieldCheck, 
+  Award, 
+  CheckCircle, 
+  Calendar, 
+  MapPin, 
+  RotateCcw, 
+  ArrowRightLeft,
+  Sparkles,
+  Heart,
+  Clock,
+  Briefcase
+} from 'lucide-react';
+
+export const ProfileView: React.FC = () => {
+  const { 
+    currentRole, 
+    setRole, 
+    activeUser, 
+    clientUser, 
+    cleaners, 
+    activeCleanerId, 
+    setActiveCleanerId,
+    jobs,
+    resetData
+  } = useMarketplace();
+
+  // Find reviews targeting this user
+  const reviewsReceived = jobs
+    .flatMap(j => [j.clientReview, j.cleanerReview])
+    .filter((rev): rev is NonNullable<typeof rev> => Boolean(rev && rev.toUserId === activeUser.id));
+
+  return (
+    <div className="max-w-3xl mx-auto space-y-6">
+      {/* Profile Card */}
+      <div className="bg-white rounded-3xl p-6 sm:p-8 border border-[#cde4dd] shadow-xs">
+        <div className="flex flex-col sm:flex-row items-center sm:items-start gap-5 text-center sm:text-left">
+          <div className="relative">
+            <img
+              src={activeUser.avatar}
+              alt={activeUser.name}
+              className="w-24 h-24 sm:w-28 sm:h-28 rounded-3xl object-cover ring-4 ring-[#0f9286]/25 shadow-md"
+            />
+            {activeUser.verified && (
+              <div className="absolute -bottom-2 -right-2 bg-[#0f9286] text-white p-1.5 rounded-xl shadow-xs" title="Perfil Verificado">
+                <ShieldCheck className="w-5 h-5" />
+              </div>
+            )}
+          </div>
+
+          <div className="flex-1">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <div>
+                <h1 className="text-2xl font-black text-[#162a45]">{activeUser.name}</h1>
+                <p className="text-xs text-[#0f766e] font-bold uppercase tracking-wider mt-0.5">
+                  {currentRole === 'client' ? 'Perfil de Contratante (Cliente)' : 'Perfil de Diarista Profissional'}
+                </p>
+              </div>
+
+              <div className="flex items-center justify-center gap-1.5 bg-[#f0faf7] px-3 py-1.5 rounded-2xl border border-[#cdebe3]">
+                <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
+                <span className="text-base font-black text-[#162a45]">{activeUser.rating}</span>
+                <span className="text-xs text-gray-500">({activeUser.reviewCount} avaliações)</span>
+              </div>
+            </div>
+
+            <p className="text-xs sm:text-sm text-gray-600 mt-3 leading-relaxed">
+              {activeUser.bio}
+            </p>
+
+            <div className="flex flex-wrap items-center justify-center sm:justify-start gap-3 text-xs text-gray-500 mt-3">
+              <span className="flex items-center gap-1">
+                <MapPin className="w-3.5 h-3.5 text-[#0f9286]" />
+                {activeUser.location}
+              </span>
+              <span>•</span>
+              <span className="flex items-center gap-1">
+                <Calendar className="w-3.5 h-3.5 text-[#0f9286]" />
+                Na plataforma desde {activeUser.memberSince}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Stats Row */}
+        <div className="grid grid-cols-3 gap-3 mt-6 pt-6 border-t border-gray-100 text-center">
+          <div className="p-3 bg-[#f8faf9] rounded-2xl border border-gray-100">
+            <span className="text-xs text-gray-400 font-medium">Serviços Feitos</span>
+            <p className="text-xl font-black text-[#0f766e] mt-0.5">{activeUser.completedJobsCount}</p>
+          </div>
+          <div className="p-3 bg-[#f8faf9] rounded-2xl border border-gray-100">
+            <span className="text-xs text-gray-400 font-medium">Avaliações 5★</span>
+            <p className="text-xl font-black text-[#0f766e] mt-0.5">{activeUser.reviewCount}</p>
+          </div>
+          <div className="p-3 bg-[#f8faf9] rounded-2xl border border-gray-100">
+            <span className="text-xs text-gray-400 font-medium">Pontualidade</span>
+            <p className="text-xl font-black text-[#0f766e] mt-0.5">100%</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Badges de Reputação */}
+      <div className="bg-white rounded-3xl p-6 border border-[#cde4dd] shadow-xs">
+        <h3 className="text-base font-bold text-[#162a45] mb-3 flex items-center gap-2">
+          <Award className="w-5 h-5 text-[#0f9286]" />
+          <span>Selos & Conquistas de Reputação</span>
+        </h3>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {activeUser.badges.map((badge, idx) => (
+            <div key={idx} className="flex items-center gap-3 p-3 bg-[#f0faf7] rounded-2xl border border-[#cde8e1]">
+              <div className="w-8 h-8 rounded-xl bg-white text-[#0f9286] flex items-center justify-center font-bold shadow-2xs">
+                ★
+              </div>
+              <div>
+                <h4 className="text-xs font-bold text-[#162a45]">{badge}</h4>
+                <p className="text-[11px] text-gray-500">Reconhecido pela comunidade do Limpaépi</p>
+              </div>
+            </div>
+          ))}
+
+          {activeUser.specialties.map((spec, idx) => (
+            <div key={`spec_${idx}`} className="flex items-center gap-3 p-3 bg-gray-50 rounded-2xl border border-gray-200">
+              <div className="w-8 h-8 rounded-xl bg-white text-gray-600 flex items-center justify-center font-bold shadow-2xs">
+                ✓
+              </div>
+              <div>
+                <h4 className="text-xs font-bold text-gray-800">{spec}</h4>
+                <p className="text-[11px] text-gray-500">Especialidade confirmada em serviços</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Reviews Received List */}
+      <div className="bg-white rounded-3xl p-6 border border-[#cde4dd] shadow-xs">
+        <h3 className="text-base font-bold text-[#162a45] mb-4">
+          Depoimentos e Avaliações Recebidas ({reviewsReceived.length})
+        </h3>
+
+        {reviewsReceived.length === 0 ? (
+          <div className="p-6 text-center text-xs text-gray-400 bg-gray-50 rounded-2xl">
+            Nenhuma avaliação registrada ainda. Complete um serviço para inaugurar sua reputação!
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {reviewsReceived.map((rev) => (
+              <div key={rev.id} className="p-4 bg-[#fbfdfc] rounded-2xl border border-gray-100 space-y-2">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2.5">
+                    <img
+                      src={rev.fromUserAvatar}
+                      alt={rev.fromUserName}
+                      className="w-8 h-8 rounded-full object-cover"
+                    />
+                    <div>
+                      <h4 className="text-xs font-bold text-[#162a45]">{rev.fromUserName}</h4>
+                      <span className="text-[10px] text-gray-400">{rev.createdAt}</span>
+                    </div>
+                  </div>
+                  <div className="flex items-center text-amber-500 text-xs font-bold">
+                    <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400 mr-1" />
+                    {rev.rating}.0
+                  </div>
+                </div>
+
+                <div className="flex flex-wrap gap-1">
+                  {rev.tags.map((t, tidx) => (
+                    <span key={tidx} className="text-[10px] bg-[#eaf6f3] text-[#0f766e] px-2 py-0.5 rounded-md font-medium">
+                      {t}
+                    </span>
+                  ))}
+                </div>
+
+                <p className="text-xs text-gray-600 italic">"{rev.comment}"</p>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Switch Persona / Reset Data Section */}
+      <div className="bg-white rounded-3xl p-6 border border-[#cde4dd] shadow-xs flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div>
+          <h4 className="text-sm font-bold text-[#162a45]">Alternar Perfil Ativo para Teste</h4>
+          <p className="text-xs text-gray-500 mt-0.5">
+            Teste a visão do Contratante e das Diaristas no mesmo navegador
+          </p>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setRole(currentRole === 'client' ? 'cleaner' : 'client')}
+            className="px-3.5 py-2 rounded-xl bg-[#eaf6f3] text-[#0f766e] hover:bg-[#d8f0ea] text-xs font-bold flex items-center gap-1.5 transition cursor-pointer"
+          >
+            <ArrowRightLeft className="w-3.5 h-3.5" />
+            <span>Mudar para {currentRole === 'client' ? 'Profissional' : 'Cliente'}</span>
+          </button>
+
+          <button
+            onClick={resetData}
+            className="px-3 py-2 rounded-xl border border-gray-200 text-gray-500 hover:text-red-600 hover:border-red-200 text-xs font-semibold flex items-center gap-1 transition cursor-pointer"
+            title="Restaurar dados originais de demonstração"
+          >
+            <RotateCcw className="w-3.5 h-3.5" />
+            <span>Resetar</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+</file>
+
+<file path="components/ReviewModal.tsx">
+import React, { useState } from 'react';
+import { useMarketplace } from '../context/MarketplaceContext';
+import { Star, X, Sparkles, Award, CheckCircle2 } from 'lucide-react';
+
+export const ReviewModal: React.FC = () => {
+  const { reviewModalData, setReviewModalData, submitReview } = useMarketplace();
+  
+  const [rating, setRating] = useState<number>(5);
+  const [hoverRating, setHoverRating] = useState<number>(0);
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [comment, setComment] = useState<string>('');
+
+  if (!reviewModalData) return null;
+
+  const isClientReviewingCleaner = reviewModalData.targetRole === 'cleaner';
+
+  const availableTags = isClientReviewingCleaner ? [
+    'Super Pontual ⏰',
+    'Capricho Impecável ✨',
+    'Cuidado com Detalhes 🔍',
+    'Super Confiável 🛡️',
+    'Produtos Ecológicos 🌿',
+    'Carinho com Pets 🐾',
+    'Passadoria Perfeita 👔',
+  ] : [
+    'Excelente Recepção 🏡',
+    'Pagamento Imediato 💳',
+    'Comunicação Clara 💬',
+    'Ambiente Organizado 🛋️',
+    'Instruções Claras 📋',
+    'Muito Educada ⭐',
+  ];
+
+  const toggleTag = (tag: string) => {
+    if (selectedTags.includes(tag)) {
+      setSelectedTags(selectedTags.filter(t => t !== tag));
+    } else {
+      setSelectedTags([...selectedTags, tag]);
+    }
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    submitReview(
+      reviewModalData.jobId,
+      reviewModalData.toUserId,
+      rating,
+      selectedTags,
+      comment.trim() || 'Serviço executado com excelência e muito respeito mútuo!'
+    );
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#0f1d30]/65 backdrop-blur-xs">
+      <div 
+        className="w-full max-w-md bg-white rounded-3xl p-6 sm:p-7 shadow-2xl border border-[#cbe5de] text-center"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex justify-end">
+          <button
+            onClick={() => setReviewModalData(null)}
+            className="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-500 flex items-center justify-center transition cursor-pointer"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+
+        {/* User Card */}
+        <div className="flex flex-col items-center mb-4">
+          <div className="relative">
+            <img
+              src={reviewModalData.toUserAvatar}
+              alt={reviewModalData.toUserName}
+              className="w-20 h-20 rounded-2xl object-cover ring-4 ring-[#0f9286]/20 shadow-md mb-2"
+            />
+            <div className="absolute -bottom-1 -right-1 w-7 h-7 bg-[#0f9286] text-white rounded-full flex items-center justify-center shadow-xs">
+              <Award className="w-4 h-4" />
+            </div>
+          </div>
+          <h3 className="font-extrabold text-lg text-[#162a45]">
+            Avaliar {reviewModalData.toUserName}
+          </h3>
+          <p className="text-xs text-gray-500">
+            {isClientReviewingCleaner ? 'Construa a reputação da profissional' : 'Construa a reputação do cliente'}
+          </p>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Star selector */}
+          <div className="bg-[#f0faf7] p-3 rounded-2xl border border-[#cdebe3]">
+            <div className="flex items-center justify-center gap-2 mb-1">
+              {[1, 2, 3, 4, 5].map((star) => (
+                <button
+                  type="button"
+                  key={star}
+                  onMouseEnter={() => setHoverRating(star)}
+                  onMouseLeave={() => setHoverRating(0)}
+                  onClick={() => setRating(star)}
+                  className="p-1 text-2xl transition transform hover:scale-125 cursor-pointer focus:outline-none"
+                >
+                  <Star
+                    className={`w-7 h-7 ${
+                      (hoverRating || rating) >= star
+                        ? 'fill-amber-400 text-amber-400 drop-shadow-xs'
+                        : 'text-gray-300'
+                    }`}
+                  />
+                </button>
+              ))}
+            </div>
+            <span className="text-xs font-bold text-[#0f766e]">
+              {rating === 5 && 'Excepcional! Nota Máxima (5.0)'}
+              {rating === 4 && 'Muito Bom! (4.0)'}
+              {rating === 3 && 'Bom (3.0)'}
+              {rating <= 2 && 'Pode Melhorar'}
+            </span>
+          </div>
+
+          {/* Compliment tags */}
+          <div className="text-left">
+            <label className="block text-xs font-bold uppercase tracking-wider text-gray-500 mb-2">
+              Destaques positivos
+            </label>
+            <div className="flex flex-wrap gap-1.5">
+              {availableTags.map((tag) => {
+                const isSelected = selectedTags.includes(tag);
+                return (
+                  <button
+                    type="button"
+                    key={tag}
+                    onClick={() => toggleTag(tag)}
+                    className={`text-xs px-2.5 py-1.5 rounded-xl border transition cursor-pointer font-medium ${
+                      isSelected
+                        ? 'bg-[#0f9286] text-white border-[#0f9286]'
+                        : 'bg-gray-50 text-gray-700 border-gray-200 hover:border-gray-300'
+                    }`}
+                  >
+                    {tag}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Comment */}
+          <div className="text-left">
+            <label className="block text-xs font-bold uppercase tracking-wider text-gray-500 mb-1">
+              Deixe um depoimento público
+            </label>
+            <textarea
+              rows={3}
+              value={comment}
+              onChange={(e) => setComment(e.target.value)}
+              placeholder="Descreva como foi o serviço, pontualidade e convivência..."
+              className="w-full text-xs bg-gray-50 border border-gray-200 rounded-xl p-3 focus:bg-white focus:outline-none focus:border-[#0f9286]"
+            />
+          </div>
+
+          <div className="pt-2">
+            <button
+              type="submit"
+              className="w-full py-3.5 px-4 rounded-xl bg-[#0f9286] hover:bg-[#0c7c72] active:scale-[0.98] text-white font-bold text-sm shadow-md shadow-[#0f9286]/30 transition cursor-pointer flex items-center justify-center gap-2"
+            >
+              <CheckCircle2 className="w-4 h-4" />
+              <span>Confirmar Avaliação & Reputação</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+};
+</file>
+
+<file path="context/MarketplaceContext.tsx">
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { UserRole, UserProfile, CleaningJob, ChatMessage, JobProposal, Review } from '../types';
+import { INITIAL_CLIENT, INITIAL_CLEANERS, INITIAL_JOBS, INITIAL_MESSAGES } from '../data/mockData';
+
+interface MarketplaceContextType {
+  currentRole: UserRole;
+  setRole: (role: UserRole) => void;
+  activeUser: UserProfile;
+  clientUser: UserProfile;
+  cleaners: UserProfile[];
+  activeCleanerId: string;
+  setActiveCleanerId: (id: string) => void;
+  jobs: CleaningJob[];
+  messages: ChatMessage[];
+  activeChatJobId: string | null;
+  setActiveChatJobId: (id: string | null) => void;
+  activeTab: 'explore' | 'my_jobs' | 'chat' | 'profile';
+  setActiveTab: (tab: 'explore' | 'my_jobs' | 'chat' | 'profile') => void;
+  showCreateJobModal: boolean;
+  setShowCreateJobModal: (show: boolean) => void;
+  showPresentationModal: boolean;
+  setShowPresentationModal: (show: boolean) => void;
+  reviewModalData: {
+    jobId: string;
+    toUserId: string;
+    toUserName: string;
+    toUserAvatar: string;
+    targetRole: UserRole;
+  } | null;
+  setReviewModalData: (data: any) => void;
+  selectedJobForDetail: CleaningJob | null;
+  setSelectedJobForDetail: (job: CleaningJob | null) => void;
+  
+  // Actions
+  createJob: (jobData: Partial<CleaningJob>) => string;
+  submitProposal: (jobId: string, price: number, note: string, includesSupplies: boolean) => void;
+  acceptProposal: (jobId: string, proposalId: string) => void;
+  updateJobStatus: (jobId: string, status: CleaningJob['status']) => void;
+  sendMessage: (jobId: string, text: string, offerPrice?: number) => void;
+  submitReview: (jobId: string, toUserId: string, rating: number, tags: string[], comment: string) => void;
+  resetData: () => void;
+}
+
+const MarketplaceContext = createContext<MarketplaceContextType | undefined>(undefined);
+
+const STORAGE_KEY_JOBS = 'limpaepi_jobs_v1';
+const STORAGE_KEY_MSGS = 'limpaepi_msgs_v1';
+const STORAGE_KEY_ROLE = 'limpaepi_role_v1';
+const STORAGE_KEY_CLEANER = 'limpaepi_cleaner_id_v1';
+const STORAGE_KEY_CLIENT = 'limpaepi_client_v1';
+const STORAGE_KEY_CLEANERS_LIST = 'limpaepi_cleaners_list_v1';
+
+export const MarketplaceProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [currentRole, setCurrentRoleState] = useState<UserRole>(() => {
+    const saved = localStorage.getItem(STORAGE_KEY_ROLE);
+    return saved === 'cleaner' ? 'cleaner' : 'client';
+  });
+
+  const [clientUser, setClientUser] = useState<UserProfile>(() => {
+    const saved = localStorage.getItem(STORAGE_KEY_CLIENT);
+    return saved ? JSON.parse(saved) : INITIAL_CLIENT;
+  });
+
+  const [cleaners, setCleaners] = useState<UserProfile[]>(() => {
+    const saved = localStorage.getItem(STORAGE_KEY_CLEANERS_LIST);
+    return saved ? JSON.parse(saved) : INITIAL_CLEANERS;
+  });
+
+  const [activeCleanerId, setActiveCleanerIdState] = useState<string>(() => {
+    const saved = localStorage.getItem(STORAGE_KEY_CLEANER);
+    return saved || 'cleaner_rosa';
+  });
+
+  const [jobs, setJobs] = useState<CleaningJob[]>(() => {
+    const saved = localStorage.getItem(STORAGE_KEY_JOBS);
+    return saved ? JSON.parse(saved) : INITIAL_JOBS;
+  });
+
+  const [messages, setMessages] = useState<ChatMessage[]>(() => {
+    const saved = localStorage.getItem(STORAGE_KEY_MSGS);
+    return saved ? JSON.parse(saved) : INITIAL_MESSAGES;
+  });
+
+  const [activeChatJobId, setActiveChatJobId] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<'explore' | 'my_jobs' | 'chat' | 'profile'>('explore');
+  const [showCreateJobModal, setShowCreateJobModal] = useState<boolean>(false);
+  const [showPresentationModal, setShowPresentationModal] = useState<boolean>(false);
+  const [selectedJobForDetail, setSelectedJobForDetail] = useState<CleaningJob | null>(null);
+  const [reviewModalData, setReviewModalData] = useState<{
+    jobId: string;
+    toUserId: string;
+    toUserName: string;
+    toUserAvatar: string;
+    targetRole: UserRole;
+  } | null>(null);
+
+  // Sync with LocalStorage
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEY_ROLE, currentRole);
+  }, [currentRole]);
+
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEY_CLEANER, activeCleanerId);
+  }, [activeCleanerId]);
+
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEY_JOBS, JSON.stringify(jobs));
+  }, [jobs]);
+
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEY_MSGS, JSON.stringify(messages));
+  }, [messages]);
+
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEY_CLIENT, JSON.stringify(clientUser));
+  }, [clientUser]);
+
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEY_CLEANERS_LIST, JSON.stringify(cleaners));
+  }, [cleaners]);
+
+  // Cross-tab broadcast channel
+  useEffect(() => {
+    if (typeof window !== 'undefined' && 'BroadcastChannel' in window) {
+      const channel = new BroadcastChannel('limpaepi_broadcast');
+      channel.onmessage = (event) => {
+        if (event.data?.type === 'SYNC') {
+          const savedJobs = localStorage.getItem(STORAGE_KEY_JOBS);
+          const savedMsgs = localStorage.getItem(STORAGE_KEY_MSGS);
+          if (savedJobs) setJobs(JSON.parse(savedJobs));
+          if (savedMsgs) setMessages(JSON.parse(savedMsgs));
+        }
+      };
+      return () => channel.close();
+    }
+  }, []);
+
+  const broadcastSync = useCallback(() => {
+    if (typeof window !== 'undefined' && 'BroadcastChannel' in window) {
+      try {
+        const channel = new BroadcastChannel('limpaepi_broadcast');
+        channel.postMessage({ type: 'SYNC' });
+        channel.close();
+      } catch (e) {
+        // ignore
+      }
+    }
+  }, []);
+
+  const activeCleaner = cleaners.find(c => c.id === activeCleanerId) || cleaners[0];
+  const activeUser = currentRole === 'client' ? clientUser : activeCleaner;
+
+  const setRole = (role: UserRole) => {
+    setCurrentRoleState(role);
+  };
+
+  const setActiveCleanerId = (id: string) => {
+    setActiveCleanerIdState(id);
+  };
+
+  // Create Job (Client)
+  const createJob = (jobData: Partial<CleaningJob>): string => {
+    const newId = `job_${Date.now()}`;
+    const newJob: CleaningJob = {
+      id: newId,
+      clientId: clientUser.id,
+      clientName: clientUser.name,
+      clientAvatar: clientUser.avatar,
+      clientRating: clientUser.rating,
+      clientReviewCount: clientUser.reviewCount,
+      title: jobData.title || 'Solicitação de Faxina',
+      serviceType: jobData.serviceType || 'padrao',
+      propertyType: jobData.propertyType || 'apartamento',
+      rooms: jobData.rooms || { bedrooms: 2, bathrooms: 1, livingRooms: 1, hasPets: false },
+      address: jobData.address || { neighborhood: 'Botafogo', city: 'Rio de Janeiro', distanceKm: 1.5 },
+      scheduledDate: jobData.scheduledDate || 'Amanhã',
+      timeSlot: jobData.timeSlot || 'manha',
+      description: jobData.description || '',
+      bringSupplies: Boolean(jobData.bringSupplies),
+      needsIroning: Boolean(jobData.needsIroning),
+      needsWindowCleaning: Boolean(jobData.needsWindowCleaning),
+      proposedPrice: jobData.proposedPrice || 160,
+      status: 'open',
+      createdAt: 'Agora mesmo',
+      proposals: [],
+    };
+
+    setJobs(prev => [newJob, ...prev]);
+    broadcastSync();
+
+    // InDrive-style instant simulation: after 3 seconds, a professional nearby sends an interest proposal!
+    setTimeout(() => {
+      const cleanerCandidate = cleaners[0]; // Dona Rosa
+      const autoProposal: JobProposal = {
+        id: `prop_${Date.now()}`,
+        jobId: newId,
+        cleanerId: cleanerCandidate.id,
+        cleanerName: cleanerCandidate.name,
+        cleanerAvatar: cleanerCandidate.avatar,
+        cleanerRating: cleanerCandidate.rating,
+        cleanerReviewCount: cleanerCandidate.reviewCount,
+        cleanerDistanceKm: 1.5,
+        cleanerBadges: cleanerCandidate.badges.slice(0, 2),
+        price: newJob.proposedPrice,
+        isCounterOffer: false,
+        note: `Olá ${clientUser.name.split(' ')[0]}! Estou disponível para o horário e aceito sua proposta de R$ ${newJob.proposedPrice}. Será um prazer atender!`,
+        includesSupplies: newJob.bringSupplies,
+        status: 'pending',
+        createdAt: 'Agora mesmo',
+      };
+
+      setJobs(prevJobs => 
+        prevJobs.map(j => {
+          if (j.id === newId) {
+            return {
+              ...j,
+              proposals: [...j.proposals, autoProposal]
+            };
+          }
+          return j;
+        })
+      );
+
+      // Add welcoming chat message
+      const welcomeMsg: ChatMessage = {
+        id: `msg_${Date.now()}`,
+        jobId: newId,
+        senderId: cleanerCandidate.id,
+        senderName: cleanerCandidate.name,
+        senderAvatar: cleanerCandidate.avatar,
+        senderRole: 'cleaner',
+        text: `Olá! Vi sua solicitação para ${newJob.scheduledDate} e aceitei sua oferta de R$ ${newJob.proposedPrice}. Se precisar de algo a mais, me avise por aqui!`,
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      };
+
+      setMessages(prev => [...prev, welcomeMsg]);
+      broadcastSync();
+    }, 2800);
+
+    return newId;
+  };
+
+  // Submit Proposal (Cleaner)
+  const submitProposal = (jobId: string, price: number, note: string, includesSupplies: boolean) => {
+    const job = jobs.find(j => j.id === jobId);
+    if (!job) return;
+
+    const isCounterOffer = price !== job.proposedPrice;
+    const newProposal: JobProposal = {
+      id: `prop_${Date.now()}`,
+      jobId,
+      cleanerId: activeCleaner.id,
+      cleanerName: activeCleaner.name,
+      cleanerAvatar: activeCleaner.avatar,
+      cleanerRating: activeCleaner.rating,
+      cleanerReviewCount: activeCleaner.reviewCount,
+      cleanerDistanceKm: 2.2,
+      cleanerBadges: activeCleaner.badges.slice(0, 2),
+      price,
+      isCounterOffer,
+      note: note || (isCounterOffer ? `Proponho R$ ${price} para atender com máxima qualidade e dedicação.` : 'Aceito seu valor proposto!'),
+      includesSupplies,
+      status: 'pending',
+      createdAt: 'Agora mesmo',
+    };
+
+    setJobs(prev => prev.map(j => {
+      if (j.id === jobId) {
+        // filter out existing from this cleaner if any
+        const filtered = j.proposals.filter(p => p.cleanerId !== activeCleaner.id);
+        return {
+          ...j,
+          proposals: [newProposal, ...filtered]
+        };
+      }
+      return j;
+    }));
+
+    // Send chat message with the proposal
+    const chatMsg: ChatMessage = {
+      id: `msg_${Date.now()}`,
+      jobId,
+      senderId: activeCleaner.id,
+      senderName: activeCleaner.name,
+      senderAvatar: activeCleaner.avatar,
+      senderRole: 'cleaner',
+      text: isCounterOffer 
+        ? `Enviei uma contraproposta de R$ ${price}. ${note}`
+        : `Demonstrei interesse no seu pedido por R$ ${price}. ${note}`,
+      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      isPriceOffer: true,
+      offerPrice: price,
+    };
+
+    setMessages(prev => [...prev, chatMsg]);
+    broadcastSync();
+  };
+
+  // Accept Proposal (Client)
+  const acceptProposal = (jobId: string, proposalId: string) => {
+    const job = jobs.find(j => j.id === jobId);
+    if (!job) return;
+    const proposal = job.proposals.find(p => p.id === proposalId);
+    if (!proposal) return;
+
+    setJobs(prev => prev.map(j => {
+      if (j.id === jobId) {
+        return {
+          ...j,
+          status: 'accepted',
+          selectedProposalId: proposalId,
+          acceptedCleanerId: proposal.cleanerId,
+          finalPrice: proposal.price,
+          proposals: j.proposals.map(p => ({
+            ...p,
+            status: p.id === proposalId ? 'accepted' : 'rejected'
+          }))
+        };
+      }
+      return j;
+    }));
+
+    // Add confirmation message in chat
+    const confirmMsg: ChatMessage = {
+      id: `msg_${Date.now()}`,
+      jobId,
+      senderId: clientUser.id,
+      senderName: clientUser.name,
+      senderAvatar: clientUser.avatar,
+      senderRole: 'client',
+      text: `🎉 Proposta aceita! O serviço está confirmado por R$ ${proposal.price}. Nos vemos no horário combinado!`,
+      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+    };
+
+    setMessages(prev => [...prev, confirmMsg]);
+    broadcastSync();
+  };
+
+  // Update status (e.g. in_progress, completed)
+  const updateJobStatus = (jobId: string, status: CleaningJob['status']) => {
+    setJobs(prev => prev.map(j => {
+      if (j.id === jobId) {
+        return { ...j, status };
+      }
+      return j;
+    }));
+
+    const statusLabels: Record<string, string> = {
+      'in_progress': '🧹 O profissional iniciou o serviço de limpeza no local!',
+      'completed': '✨ Serviço de limpeza concluído com sucesso! Hora de avaliar e construir reputação.',
+      'cancelled': '❌ O serviço foi cancelado.'
+    };
+
+    if (statusLabels[status]) {
+      const statusMsg: ChatMessage = {
+        id: `msg_${Date.now()}`,
+        jobId,
+        senderId: 'system',
+        senderName: 'Sistema Limpaépi',
+        senderAvatar: '',
+        senderRole: currentRole,
+        text: statusLabels[status],
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      };
+      setMessages(prev => [...prev, statusMsg]);
+    }
+
+    broadcastSync();
+  };
+
+  // Send Chat Message
+  const sendMessage = (jobId: string, text: string, offerPrice?: number) => {
+    if (!text.trim() && !offerPrice) return;
+
+    const newMsg: ChatMessage = {
+      id: `msg_${Date.now()}`,
+      jobId,
+      senderId: activeUser.id,
+      senderName: activeUser.name,
+      senderAvatar: activeUser.avatar,
+      senderRole: currentRole,
+      text: text.trim(),
+      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      isPriceOffer: Boolean(offerPrice),
+      offerPrice,
+    };
+
+    setMessages(prev => [...prev, newMsg]);
+    broadcastSync();
+
+    // If sent by client to cleaner, provide a friendly simulated reply if not switched
+    if (currentRole === 'client') {
+      const job = jobs.find(j => j.id === jobId);
+      const recipientCleaner = cleaners.find(c => c.id === (job?.acceptedCleanerId || job?.proposals[0]?.cleanerId));
+      if (recipientCleaner && recipientCleaner.id !== activeCleanerId) {
+        setTimeout(() => {
+          const autoReplies = [
+            'Combinado! Pode deixar comigo, cuidarei de tudo com muito carinho.',
+            'Perfeito! Estarei aí no horário em ponto.',
+            'Obrigada pela mensagem! Qualquer dúvida antes de chegar eu pergunto por aqui.',
+            'Com certeza! Vou levar os panos limpos e caprichar.',
+          ];
+          const randomReply = autoReplies[Math.floor(Math.random() * autoReplies.length)];
+          const replyMsg: ChatMessage = {
+            id: `msg_${Date.now()}`,
+            jobId,
+            senderId: recipientCleaner.id,
+            senderName: recipientCleaner.name,
+            senderAvatar: recipientCleaner.avatar,
+            senderRole: 'cleaner',
+            text: randomReply,
+            timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          };
+          setMessages(prev => [...prev, replyMsg]);
+          broadcastSync();
+        }, 1800);
+      }
+    }
+  };
+
+  // Submit Review & Update Reputations
+  const submitReview = (jobId: string, toUserId: string, rating: number, tags: string[], comment: string) => {
+    const isClientReviewing = currentRole === 'client';
+    const newReview: Review = {
+      id: `rev_${Date.now()}`,
+      jobId,
+      fromUserId: activeUser.id,
+      fromUserName: activeUser.name,
+      fromUserAvatar: activeUser.avatar,
+      toUserId,
+      rating,
+      tags,
+      comment,
+      createdAt: 'Hoje',
+    };
+
+    // Update job record
+    setJobs(prev => prev.map(j => {
+      if (j.id === jobId) {
+        return {
+          ...j,
+          status: 'completed',
+          clientReview: isClientReviewing ? newReview : j.clientReview,
+          cleanerReview: !isClientReviewing ? newReview : j.cleanerReview,
+        };
+      }
+      return j;
+    }));
+
+    // Update target user's reputation score and review count
+    if (isClientReviewing) {
+      setCleaners(prev => prev.map(c => {
+        if (c.id === toUserId) {
+          const newCount = c.reviewCount + 1;
+          const newRating = Number(((c.rating * c.reviewCount + rating) / newCount).toFixed(2));
+          return {
+            ...c,
+            reviewCount: newCount,
+            completedJobsCount: c.completedJobsCount + 1,
+            rating: newRating,
+          };
+        }
+        return c;
+      }));
+    } else {
+      setClientUser(prev => {
+        const newCount = prev.reviewCount + 1;
+        const newRating = Number(((prev.rating * prev.reviewCount + rating) / newCount).toFixed(2));
+        return {
+          ...prev,
+          reviewCount: newCount,
+          completedJobsCount: prev.completedJobsCount + 1,
+          rating: newRating,
+        };
+      });
+    }
+
+    setReviewModalData(null);
+    broadcastSync();
+  };
+
+  const resetData = () => {
+    setClientUser(INITIAL_CLIENT);
+    setCleaners(INITIAL_CLEANERS);
+    setJobs(INITIAL_JOBS);
+    setMessages(INITIAL_MESSAGES);
+    setCurrentRoleState('client');
+    setActiveCleanerIdState('cleaner_rosa');
+    setActiveChatJobId(null);
+    localStorage.clear();
+    broadcastSync();
+  };
+
+  return (
+    <MarketplaceContext.Provider
+      value={{
+        currentRole,
+        setRole,
+        activeUser,
+        clientUser,
+        cleaners,
+        activeCleanerId,
+        setActiveCleanerId,
+        jobs,
+        messages,
+        activeChatJobId,
+        setActiveChatJobId,
+        activeTab,
+        setActiveTab,
+        showCreateJobModal,
+        setShowCreateJobModal,
+        showPresentationModal,
+        setShowPresentationModal,
+        reviewModalData,
+        setReviewModalData,
+        selectedJobForDetail,
+        setSelectedJobForDetail,
+        createJob,
+        submitProposal,
+        acceptProposal,
+        updateJobStatus,
+        sendMessage,
+        submitReview,
+        resetData,
+      }}
+    >
+      {children}
+    </MarketplaceContext.Provider>
+  );
+};
+
+export const useMarketplace = () => {
+  const context = useContext(MarketplaceContext);
+  if (!context) {
+    throw new Error('useMarketplace must be used within a MarketplaceProvider');
+  }
+  return context;
+};
+</file>
+
+<file path="data/mockData.ts">
+import { CleaningJob, ChatMessage, UserProfile } from '../types';
+
+export const INITIAL_CLIENT: UserProfile = {
+  id: 'client_mariana',
+  name: 'Mariana Souza',
+  role: 'client',
+  avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=160&auto=format&fit=crop&q=80',
+  rating: 4.95,
+  reviewCount: 14,
+  completedJobsCount: 14,
+  location: 'Botafogo, Rio de Janeiro',
+  verified: true,
+  phone: '(21) 98822-1049',
+  bio: 'Arquiteta, moro com um cachorrinho porte pequeno muito manso. Valorizo pontualidade e cuidado com pisos de madeira.',
+  specialties: ['Pagamento Imediato', 'Comunicação Clara', 'Ambiente Acolhedor'],
+  badges: ['Cliente Verificada', 'Nota 4.95 ★', 'Pontual com Pagamento'],
+  memberSince: 'Março de 2023',
+};
+
+export const INITIAL_CLEANERS: UserProfile[] = [
+  {
+    id: 'cleaner_rosa',
+    name: 'Dona Rosa Oliveira',
+    role: 'cleaner',
+    avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=160&auto=format&fit=crop&q=80',
+    rating: 4.98,
+    reviewCount: 142,
+    completedJobsCount: 156,
+    location: 'Copacabana (atende Zona Sul)',
+    verified: true,
+    phone: '(21) 99311-4520',
+    bio: 'Mais de 8 anos atuando em residências e flats na Zona Sul. Capricho absoluto em cozinhas, azulejos e janelas. Levo meus panos de microfibra esterilizados.',
+    specialties: ['Faxina Residencial Completa', 'Limpeza Detalhada', 'Cuidado com Pets'],
+    badges: ['Super Diarista ⭐', 'Documentos Verificados', '140+ Avaliações 5★', '100% Pontual'],
+    hourlyRateHint: 40,
+    memberSince: 'Janeiro de 2022',
+  },
+  {
+    id: 'cleaner_clara',
+    name: 'Clara Mendes',
+    role: 'cleaner',
+    avatar: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=160&auto=format&fit=crop&q=80',
+    rating: 4.92,
+    reviewCount: 86,
+    completedJobsCount: 92,
+    location: 'Laranjeiras e Flamengo',
+    verified: true,
+    phone: '(21) 97123-9988',
+    bio: 'Especialista em organização de armários, passadoria de camisas finas e uso de produtos ecológicos hipoalergênicos.',
+    specialties: ['Passadoria Fina', 'Produtos Ecológicos', 'Organização de Guarda-Roupa'],
+    badges: ['Verificada', 'Top Passadoria', 'Eco-Friendly'],
+    hourlyRateHint: 38,
+    memberSince: 'Julho de 2022',
+  },
+  {
+    id: 'cleaner_carlos',
+    name: 'Carlos & Valéria (Dupla)',
+    role: 'cleaner',
+    avatar: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=160&auto=format&fit=crop&q=80',
+    rating: 4.95,
+    reviewCount: 54,
+    completedJobsCount: 58,
+    location: 'Tijuca (atende toda a cidade)',
+    verified: true,
+    phone: '(21) 98450-3321',
+    bio: 'Trabalhamos em dupla para serviços que exigem rapidez e força: pós-obra, faxinas pesadas e imóveis pré-mudança.',
+    specialties: ['Pós-Obra', 'Limpeza Pesada', 'Equipamento Próprio'],
+    badges: ['Equipe Ágil', 'Especialistas Pós-Obra', 'Equipamento Industrial'],
+    hourlyRateHint: 65,
+    memberSince: 'Outubro de 2022',
+  },
+  {
+    id: 'cleaner_luciana',
+    name: 'Luciana Santos',
+    role: 'cleaner',
+    avatar: 'https://images.unsplash.com/photo-1567532939604-b6b5b0db2604?w=160&auto=format&fit=crop&q=80',
+    rating: 4.89,
+    reviewCount: 41,
+    completedJobsCount: 45,
+    location: 'Botafogo e Humaitá',
+    verified: true,
+    phone: '(21) 99044-8822',
+    bio: 'Diarista atenciosa e de confiança. Trabalho há 4 anos com famílias e profissionais que trabalham em home office.',
+    specialties: ['Limpeza Padrão', 'Silenciosa / Home Office', 'Vidros e Sacadas'],
+    badges: ['Confiabilidade Máxima', 'Verificada'],
+    hourlyRateHint: 35,
+    memberSince: 'Março de 2023',
+  },
+];
+
+export const INITIAL_JOBS: CleaningJob[] = [
+  {
+    id: 'job_001',
+    clientId: 'client_mariana',
+    clientName: 'Mariana Souza',
+    clientAvatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=160&auto=format&fit=crop&q=80',
+    clientRating: 4.95,
+    clientReviewCount: 14,
+    title: 'Faxina padrão em apartamento de 2 quartos',
+    serviceType: 'padrao',
+    propertyType: 'apartamento',
+    rooms: {
+      bedrooms: 2,
+      bathrooms: 2,
+      livingRooms: 1,
+      hasPets: true,
+      areaM2: 75,
+    },
+    address: {
+      street: 'Rua Voluntários da Pátria, 180',
+      neighborhood: 'Botafogo',
+      city: 'Rio de Janeiro',
+      distanceKm: 2.1,
+    },
+    scheduledDate: 'Amanhã, 08:30',
+    timeSlot: 'manha',
+    description: 'Preciso de faxina caprichada, limpar chão de tábua corrida, azulejos dos 2 banheiros e passar pano nos móveis. Tenho um spitz pequeno e dócil.',
+    bringSupplies: false,
+    needsIroning: true,
+    needsWindowCleaning: false,
+    proposedPrice: 170, // inDrive style price offer from client
+    status: 'open',
+    createdAt: 'Hoje às 10:15',
+    proposals: [
+      {
+        id: 'prop_001',
+        jobId: 'job_001',
+        cleanerId: 'cleaner_rosa',
+        cleanerName: 'Dona Rosa Oliveira',
+        cleanerAvatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=160&auto=format&fit=crop&q=80',
+        cleanerRating: 4.98,
+        cleanerReviewCount: 142,
+        cleanerDistanceKm: 1.8,
+        cleanerBadges: ['Super Diarista ⭐', '140+ 5★'],
+        price: 170, // Matched client's price!
+        isCounterOffer: false,
+        note: 'Olá Mariana! Moro pertinho em Copacabana e chego pontualmente às 08:30. Adoro pets e capricho no piso de madeira!',
+        includesSupplies: false,
+        status: 'pending',
+        createdAt: 'Há 12 min',
+      },
+      {
+        id: 'prop_002',
+        jobId: 'job_001',
+        cleanerId: 'cleaner_clara',
+        cleanerName: 'Clara Mendes',
+        cleanerAvatar: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=160&auto=format&fit=crop&q=80',
+        cleanerRating: 4.92,
+        cleanerReviewCount: 86,
+        cleanerDistanceKm: 2.9,
+        cleanerBadges: ['Top Passadoria', 'Eco-Friendly'],
+        price: 185, // inDrive style counter-offer with bonus
+        isCounterOffer: true,
+        note: 'Faço o serviço completo incluindo a passadoria impecável de até 15 camisas e trago produtos ecológicos hipoalergênicos por R$ 185.',
+        includesSupplies: true,
+        status: 'pending',
+        createdAt: 'Há 5 min',
+      },
+    ],
+  },
+  {
+    id: 'job_002',
+    clientId: 'client_mariana',
+    clientName: 'Mariana Souza',
+    clientAvatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=160&auto=format&fit=crop&q=80',
+    clientRating: 4.95,
+    clientReviewCount: 14,
+    title: 'Limpeza pesada de cozinha e vidros de varanda',
+    serviceType: 'pesada',
+    propertyType: 'apartamento',
+    rooms: {
+      bedrooms: 1,
+      bathrooms: 1,
+      livingRooms: 1,
+      hasPets: false,
+      areaM2: 55,
+    },
+    address: {
+      neighborhood: 'Botafogo',
+      city: 'Rio de Janeiro',
+      distanceKm: 2.3,
+    },
+    scheduledDate: 'Sexta-feira, 13:30',
+    timeSlot: 'tarde',
+    description: 'Desengordurar coifa, forno e limpar os vidros da sacada blindex.',
+    bringSupplies: true,
+    needsIroning: false,
+    needsWindowCleaning: true,
+    proposedPrice: 190,
+    status: 'accepted',
+    selectedProposalId: 'prop_003',
+    acceptedCleanerId: 'cleaner_luciana',
+    finalPrice: 190,
+    createdAt: 'Ontem',
+    proposals: [
+      {
+        id: 'prop_003',
+        jobId: 'job_002',
+        cleanerId: 'cleaner_luciana',
+        cleanerName: 'Luciana Santos',
+        cleanerAvatar: 'https://images.unsplash.com/photo-1567532939604-b6b5b0db2604?w=160&auto=format&fit=crop&q=80',
+        cleanerRating: 4.89,
+        cleanerReviewCount: 41,
+        cleanerDistanceKm: 1.2,
+        cleanerBadges: ['Confiabilidade Máxima'],
+        price: 190,
+        isCounterOffer: false,
+        note: 'Aceito a proposta! Tenho desengordurante profissional e rodinho específico para sacada.',
+        includesSupplies: true,
+        status: 'accepted',
+        createdAt: 'Ontem às 16:00',
+      },
+    ],
+  },
+  {
+    id: 'job_003',
+    clientId: 'client_mariana',
+    clientName: 'Mariana Souza',
+    clientAvatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=160&auto=format&fit=crop&q=80',
+    clientRating: 4.95,
+    clientReviewCount: 14,
+    title: 'Limpeza de mudança / desocupação',
+    serviceType: 'pos_obra',
+    propertyType: 'apartamento',
+    rooms: {
+      bedrooms: 3,
+      bathrooms: 2,
+      livingRooms: 1,
+      hasPets: false,
+      areaM2: 95,
+    },
+    address: {
+      neighborhood: 'Flamengo',
+      city: 'Rio de Janeiro',
+      distanceKm: 3.5,
+    },
+    scheduledDate: '15 de Setembro',
+    timeSlot: 'dia_todo',
+    description: 'Imóvel vazio antes de entregar as chaves da imobiliária.',
+    bringSupplies: true,
+    needsIroning: false,
+    needsWindowCleaning: true,
+    proposedPrice: 320,
+    status: 'completed',
+    selectedProposalId: 'prop_004',
+    acceptedCleanerId: 'cleaner_carlos',
+    finalPrice: 320,
+    createdAt: '14 de Set',
+    proposals: [],
+    clientReview: {
+      id: 'rev_001',
+      jobId: 'job_003',
+      fromUserId: 'client_mariana',
+      fromUserName: 'Mariana Souza',
+      fromUserAvatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=160&auto=format&fit=crop&q=80',
+      toUserId: 'cleaner_carlos',
+      rating: 5,
+      tags: ['Super Pontuais', 'Serviço Impecável', 'Entrega Perfeita'],
+      comment: 'O Carlos e a Valéria deixaram o apartamento brilhando! O vistoriador da imobiliária aprovou de primeira sem nenhum apontamento.',
+      createdAt: '15 de Set',
+    },
+    cleanerReview: {
+      id: 'rev_002',
+      jobId: 'job_003',
+      fromUserId: 'cleaner_carlos',
+      fromUserName: 'Carlos & Valéria',
+      fromUserAvatar: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=160&auto=format&fit=crop&q=80',
+      toUserId: 'client_mariana',
+      rating: 5,
+      tags: ['Excelente Comunicação', 'Pagamento Rápido', 'Educada'],
+      comment: 'Mariana foi super atenciosa, deixou as instruções detalhadas e facilitou a entrada no prédio.',
+      createdAt: '15 de Set',
+    }
+  }
+];
+
+export const INITIAL_MESSAGES: ChatMessage[] = [
+  {
+    id: 'msg_001',
+    jobId: 'job_001',
+    senderId: 'cleaner_rosa',
+    senderName: 'Dona Rosa Oliveira',
+    senderAvatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=160&auto=format&fit=crop&q=80',
+    senderRole: 'cleaner',
+    text: 'Olá Mariana, boa tarde! Vi seu pedido para amanhã às 08:30 em Botafogo. Aceito o valor proposto de R$ 170,00!',
+    timestamp: '10:22',
+  },
+  {
+    id: 'msg_002',
+    jobId: 'job_001',
+    senderId: 'client_mariana',
+    senderName: 'Mariana Souza',
+    senderAvatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=160&auto=format&fit=crop&q=80',
+    senderRole: 'client',
+    text: 'Oi Dona Rosa! Que maravilha. Você costuma trazer algum produto específico para piso de taco ou prefere usar o meu?',
+    timestamp: '10:25',
+  },
+  {
+    id: 'msg_003',
+    jobId: 'job_001',
+    senderId: 'cleaner_rosa',
+    senderName: 'Dona Rosa Oliveira',
+    senderAvatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=160&auto=format&fit=crop&q=80',
+    senderRole: 'cleaner',
+    text: 'Eu levo meus panos de microfibra macios especiais que não soltam fiapo nem arranham. Se tiver a cera líquida que você gosta, posso passar também!',
+    timestamp: '10:27',
+  },
+  {
+    id: 'msg_004',
+    jobId: 'job_002',
+    senderId: 'cleaner_luciana',
+    senderName: 'Luciana Santos',
+    senderAvatar: 'https://images.unsplash.com/photo-1567532939604-b6b5b0db2604?w=160&auto=format&fit=crop&q=80',
+    senderRole: 'cleaner',
+    text: 'Mariana, tudo confirmado para sexta às 13:30! Já separei o material para os vidros da varanda.',
+    timestamp: 'Ontem 16:15',
+  },
+  {
+    id: 'msg_005',
+    jobId: 'job_002',
+    senderId: 'client_mariana',
+    senderName: 'Mariana Souza',
+    senderAvatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=160&auto=format&fit=crop&q=80',
+    senderRole: 'client',
+    text: 'Perfeito, Luciana! A portaria já está autorizada com seu nome.',
+    timestamp: 'Ontem 16:30',
+  }
+];
+</file>
+
+<file path="App.tsx">
+import React from 'react';
+import { MarketplaceProvider, useMarketplace } from './context/MarketplaceContext';
+import { Header } from './components/Header';
+import { ConceptModal } from './components/ConceptModal';
+import { CreateJobModal } from './components/CreateJobModal';
+import { ReviewModal } from './components/ReviewModal';
+import { ClientExploreView } from './components/ClientExploreView';
+import { CleanerRadarView } from './components/CleanerRadarView';
+import { MyJobsView } from './components/MyJobsView';
+import { ChatView } from './components/ChatView';
+import { ProfileView } from './components/ProfileView';
+import { BottomNav } from './components/BottomNav';
+import { 
+  Sparkles, 
+  ArrowRightLeft, 
+  ShieldCheck, 
+  MessageSquare, 
+  Home, 
+  ClipboardList, 
+  User, 
+  Radar 
+} from 'lucide-react';
+
+const MarketplaceApp: React.FC = () => {
+  const { currentRole, setRole, activeTab, setActiveTab, activeUser } = useMarketplace();
+
+  return (
+    <div className="min-h-screen bg-[#f5fbf9] flex flex-col text-[#162a45]">
+      {/* Top Header */}
+      <Header />
+
+      {/* Desktop Tab Navigation Bar */}
+      <div className="hidden md:block bg-white border-b border-[#e2ece9]">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 flex items-center justify-between">
+          <div className="flex items-center gap-1">
+            <button
+              onClick={() => setActiveTab('explore')}
+              className={`py-3.5 px-4 text-xs font-bold border-b-2 flex items-center gap-2 transition cursor-pointer ${
+                activeTab === 'explore'
+                  ? 'border-[#0f9286] text-[#0f766e]'
+                  : 'border-transparent text-gray-500 hover:text-gray-800'
+              }`}
+            >
+              {currentRole === 'client' ? (
+                <>
+                  <Home className="w-4 h-4" />
+                  <span>Explorar Serviços</span>
+                </>
+              ) : (
+                <>
+                  <Radar className="w-4 h-4 text-[#0f9286]" />
+                  <span>Radar de Oportunidades</span>
+                </>
+              )}
+            </button>
+
+            <button
+              onClick={() => setActiveTab('my_jobs')}
+              className={`py-3.5 px-4 text-xs font-bold border-b-2 flex items-center gap-2 transition cursor-pointer ${
+                activeTab === 'my_jobs'
+                  ? 'border-[#0f9286] text-[#0f766e]'
+                  : 'border-transparent text-gray-500 hover:text-gray-800'
+              }`}
+            >
+              <ClipboardList className="w-4 h-4" />
+              <span>{currentRole === 'client' ? 'Meus Pedidos' : 'Minha Agenda'}</span>
+            </button>
+
+            <button
+              onClick={() => setActiveTab('chat')}
+              className={`py-3.5 px-4 text-xs font-bold border-b-2 flex items-center gap-2 transition cursor-pointer ${
+                activeTab === 'chat'
+                  ? 'border-[#0f9286] text-[#0f766e]'
+                  : 'border-transparent text-gray-500 hover:text-gray-800'
+              }`}
+            >
+              <div className="relative">
+                <MessageSquare className="w-4 h-4" />
+                <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-emerald-500 rounded-full" />
+              </div>
+              <span>Chat em Tempo Real</span>
+            </button>
+
+            <button
+              onClick={() => setActiveTab('profile')}
+              className={`py-3.5 px-4 text-xs font-bold border-b-2 flex items-center gap-2 transition cursor-pointer ${
+                activeTab === 'profile'
+                  ? 'border-[#0f9286] text-[#0f766e]'
+                  : 'border-transparent text-gray-500 hover:text-gray-800'
+              }`}
+            >
+              <User className="w-4 h-4" />
+              <span>Perfil & Reputação</span>
+            </button>
+          </div>
+
+          {/* Role status pill */}
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-gray-400">Você está navegando como:</span>
+            <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-[#e2f5f1] text-[#0f766e] flex items-center gap-1">
+              <ShieldCheck className="w-3.5 h-3.5" />
+              {currentRole === 'client' ? 'Cliente (Mariana)' : `Profissional (${activeUser.name.split(' ')[0]})`}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* Main Content Area */}
+      <main className="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 py-6 pb-24 md:pb-12">
+        {activeTab === 'explore' && (
+          currentRole === 'client' ? <ClientExploreView /> : <CleanerRadarView />
+        )}
+
+        {activeTab === 'my_jobs' && <MyJobsView />}
+
+        {activeTab === 'chat' && <ChatView />}
+
+        {activeTab === 'profile' && <ProfileView />}
+      </main>
+
+      {/* Global Modals */}
+      <ConceptModal />
+      <CreateJobModal />
+      <ReviewModal />
+
+      {/* Mobile Bottom Navigation */}
+      <BottomNav />
+    </div>
+  );
+};
+
+export default function App() {
+  return (
+    <MarketplaceProvider>
+      <MarketplaceApp />
+    </MarketplaceProvider>
+  );
+}
+</file>
+
+<file path="index.css">
+@import "tailwindcss";
+
+@layer base {
+  body {
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    color: #162a45;
+    background-color: #f6faf9;
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
+/* Custom scrollbars and transitions */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #f1f5f4;
+}
+::-webkit-scrollbar-thumb {
+  background: #c5ded8;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #0f9286;
+}
+</file>
+
+<file path="main.tsx">
+import {StrictMode} from 'react';
+import {createRoot} from 'react-dom/client';
+import App from './App.tsx';
+import './index.css';
+
+createRoot(document.getElementById('root')!).render(
+  <StrictMode>
+    <App />
+  </StrictMode>,
+);
+</file>
+
+<file path="types.ts">
+export type UserRole = 'client' | 'cleaner';
+
+export type ServiceType = 
+  | 'padrao' 
+  | 'pesada' 
+  | 'pos_obra' 
+  | 'comercial' 
+  | 'passadoria';
+
+export type TimeSlot = 'manha' | 'tarde' | 'dia_todo';
+
+export interface UserProfile {
+  id: string;
+  name: string;
+  role: UserRole;
+  avatar: string;
+  rating: number;
+  reviewCount: number;
+  completedJobsCount: number;
+  location: string;
+  verified: boolean;
+  phone?: string;
+  bio: string;
+  specialties: string[];
+  badges: string[];
+  hourlyRateHint?: number;
+  memberSince: string;
+}
+
+export interface JobProposal {
+  id: string;
+  jobId: string;
+  cleanerId: string;
+  cleanerName: string;
+  cleanerAvatar: string;
+  cleanerRating: number;
+  cleanerReviewCount: number;
+  cleanerDistanceKm: number;
+  cleanerBadges: string[];
+  price: number;
+  isCounterOffer: boolean;
+  note: string;
+  includesSupplies: boolean;
+  status: 'pending' | 'accepted' | 'rejected';
+  createdAt: string;
+}
+
+export interface Review {
+  id: string;
+  jobId: string;
+  fromUserId: string;
+  fromUserName: string;
+  fromUserAvatar: string;
+  toUserId: string;
+  rating: number; // 1 to 5
+  tags: string[];
+  comment: string;
+  createdAt: string;
+}
+
+export interface CleaningJob {
+  id: string;
+  clientId: string;
+  clientName: string;
+  clientAvatar: string;
+  clientRating: number;
+  clientReviewCount: number;
+  title: string;
+  serviceType: ServiceType;
+  propertyType: 'apartamento' | 'casa' | 'comercial';
+  rooms: {
+    bedrooms: number;
+    bathrooms: number;
+    livingRooms: number;
+    hasPets: boolean;
+    areaM2?: number;
+  };
+  address: {
+    street?: string;
+    neighborhood: string;
+    city: string;
+    distanceKm?: number; // relative to cleaner viewing it
+  };
+  scheduledDate: string; // e.g. "Amanhã, 22 de Set"
+  timeSlot: TimeSlot;
+  description: string;
+  bringSupplies: boolean;
+  needsIroning: boolean;
+  needsWindowCleaning: boolean;
+  proposedPrice: number; // inDrive style price suggestion
+  status: 'open' | 'negotiating' | 'accepted' | 'in_progress' | 'completed' | 'cancelled';
+  createdAt: string;
+  proposals: JobProposal[];
+  selectedProposalId?: string;
+  acceptedCleanerId?: string;
+  finalPrice?: number;
+  clientReview?: Review;
+  cleanerReview?: Review;
+}
+
+export interface ChatMessage {
+  id: string;
+  jobId: string;
+  senderId: string;
+  senderName: string;
+  senderAvatar: string;
+  senderRole: UserRole;
+  text: string;
+  timestamp: string;
+  isPriceOffer?: boolean;
+  offerPrice?: number;
+}
+</file>
+
+</files>
