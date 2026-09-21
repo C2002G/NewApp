@@ -46,10 +46,7 @@ export const ClientExploreView: React.FC = () => {
       {/* Hero Banner for Client */}
       <div className="relative overflow-hidden rounded-3xl bg-linear-to-br from-[#0f9286] via-[#11998e] to-[#0c7c72] text-white p-6 sm:p-8 shadow-lg shadow-[#0f9286]/15">
         <div className="relative z-10 max-w-xl">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/15 text-white text-xs font-semibold backdrop-blur-xs mb-3">
-            <Sparkles className="w-3.5 h-3.5 text-[#a8ffeb]" />
-            <span>Marketplace estilo inDrive</span>
-          </div>
+          
 
           <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight leading-snug">
             Sua casa impecável, com o preço que você propõe.

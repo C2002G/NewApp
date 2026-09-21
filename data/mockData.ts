@@ -1,8 +1,8 @@
 import { CleaningJob, ChatMessage, UserProfile } from '../types';
 
 export const INITIAL_CLIENT: UserProfile = {
-  id: 'client_mariana',
-  name: 'Mariana Souza',
+  id: 'client_Ivi',
+  name: 'Ivi Lopes',
   role: 'client',
   avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=160&auto=format&fit=crop&q=80',
   rating: 4.95,
@@ -12,7 +12,7 @@ export const INITIAL_CLIENT: UserProfile = {
   verified: true,
   phone: '(21) 98822-1049',
   bio: 'Arquiteta, moro com um cachorrinho porte pequeno muito manso. Valorizo pontualidade e cuidado com pisos de madeira.',
-  specialties: ['Pagamento Imediato', 'Comunicação Clara', 'Ambiente Acolhedor'],
+  specialties: ['Pagamento Imediato', 'Comunicação Claudia', 'Ambiente Acolhedor'],
   badges: ['Cliente Verificada', 'Nota 4.95 ★', 'Pontual com Pagamento'],
   memberSince: 'Março de 2023',
 };
@@ -36,8 +36,8 @@ export const INITIAL_CLEANERS: UserProfile[] = [
     memberSince: 'Janeiro de 2022',
   },
   {
-    id: 'cleaner_clara',
-    name: 'Clara Mendes',
+    id: 'cleaner_Claudia',
+    name: 'Claudia Gisele',
     role: 'cleaner',
     avatar: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=160&auto=format&fit=crop&q=80',
     rating: 4.92,
@@ -70,8 +70,8 @@ export const INITIAL_CLEANERS: UserProfile[] = [
     memberSince: 'Outubro de 2022',
   },
   {
-    id: 'cleaner_luciana',
-    name: 'Luciana Santos',
+    id: 'cleaner_Floki',
+    name: 'Floki Bastos',
     role: 'cleaner',
     avatar: 'https://images.unsplash.com/photo-1567532939604-b6b5b0db2604?w=160&auto=format&fit=crop&q=80',
     rating: 4.89,
@@ -91,8 +91,8 @@ export const INITIAL_CLEANERS: UserProfile[] = [
 export const INITIAL_JOBS: CleaningJob[] = [
   {
     id: 'job_001',
-    clientId: 'client_mariana',
-    clientName: 'Mariana Souza',
+    clientId: 'client_Ivi',
+    clientName: 'Ivi Lopes',
     clientAvatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=160&auto=format&fit=crop&q=80',
     clientRating: 4.95,
     clientReviewCount: 14,
@@ -134,7 +134,7 @@ export const INITIAL_JOBS: CleaningJob[] = [
         cleanerBadges: ['Super Diarista ⭐', '140+ 5★'],
         price: 170, // Matched client's price!
         isCounterOffer: false,
-        note: 'Olá Mariana! Moro pertinho em Copacabana e chego pontualmente às 08:30. Adoro pets e capricho no piso de madeira!',
+        note: 'Olá Ivi! Moro pertinho em Copacabana e chego pontualmente às 08:30. Adoro pets e capricho no piso de madeira!',
         includesSupplies: false,
         status: 'pending',
         createdAt: 'Há 12 min',
@@ -142,8 +142,8 @@ export const INITIAL_JOBS: CleaningJob[] = [
       {
         id: 'prop_002',
         jobId: 'job_001',
-        cleanerId: 'cleaner_clara',
-        cleanerName: 'Clara Mendes',
+        cleanerId: 'cleaner_Claudia',
+        cleanerName: 'Claudia Gisele',
         cleanerAvatar: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=160&auto=format&fit=crop&q=80',
         cleanerRating: 4.92,
         cleanerReviewCount: 86,
@@ -160,8 +160,8 @@ export const INITIAL_JOBS: CleaningJob[] = [
   },
   {
     id: 'job_002',
-    clientId: 'client_mariana',
-    clientName: 'Mariana Souza',
+    clientId: 'client_Ivi',
+    clientName: 'Ivi Lopes',
     clientAvatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=160&auto=format&fit=crop&q=80',
     clientRating: 4.95,
     clientReviewCount: 14,
@@ -189,15 +189,15 @@ export const INITIAL_JOBS: CleaningJob[] = [
     proposedPrice: 190,
     status: 'accepted',
     selectedProposalId: 'prop_003',
-    acceptedCleanerId: 'cleaner_luciana',
+    acceptedCleanerId: 'cleaner_Floki',
     finalPrice: 190,
     createdAt: 'Ontem',
     proposals: [
       {
         id: 'prop_003',
         jobId: 'job_002',
-        cleanerId: 'cleaner_luciana',
-        cleanerName: 'Luciana Santos',
+        cleanerId: 'cleaner_Floki',
+        cleanerName: 'Floki Bastos',
         cleanerAvatar: 'https://images.unsplash.com/photo-1567532939604-b6b5b0db2604?w=160&auto=format&fit=crop&q=80',
         cleanerRating: 4.89,
         cleanerReviewCount: 41,
@@ -214,8 +214,8 @@ export const INITIAL_JOBS: CleaningJob[] = [
   },
   {
     id: 'job_003',
-    clientId: 'client_mariana',
-    clientName: 'Mariana Souza',
+    clientId: 'client_Ivi',
+    clientName: 'Ivi Lopes',
     clientAvatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=160&auto=format&fit=crop&q=80',
     clientRating: 4.95,
     clientReviewCount: 14,
@@ -250,8 +250,8 @@ export const INITIAL_JOBS: CleaningJob[] = [
     clientReview: {
       id: 'rev_001',
       jobId: 'job_003',
-      fromUserId: 'client_mariana',
-      fromUserName: 'Mariana Souza',
+      fromUserId: 'client_Ivi',
+      fromUserName: 'Ivi Lopes',
       fromUserAvatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=160&auto=format&fit=crop&q=80',
       toUserId: 'cleaner_carlos',
       rating: 5,
@@ -265,10 +265,10 @@ export const INITIAL_JOBS: CleaningJob[] = [
       fromUserId: 'cleaner_carlos',
       fromUserName: 'Carlos & Valéria',
       fromUserAvatar: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=160&auto=format&fit=crop&q=80',
-      toUserId: 'client_mariana',
+      toUserId: 'client_Ivi',
       rating: 5,
       tags: ['Excelente Comunicação', 'Pagamento Rápido', 'Educada'],
-      comment: 'Mariana foi super atenciosa, deixou as instruções detalhadas e facilitou a entrada no prédio.',
+      comment: 'Ivi foi super atenciosa, deixou as instruções detalhadas e facilitou a entrada no prédio.',
       createdAt: '15 de Set',
     }
   }
@@ -282,14 +282,14 @@ export const INITIAL_MESSAGES: ChatMessage[] = [
     senderName: 'Dona Rosa Oliveira',
     senderAvatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=160&auto=format&fit=crop&q=80',
     senderRole: 'cleaner',
-    text: 'Olá Mariana, boa tarde! Vi seu pedido para amanhã às 08:30 em Botafogo. Aceito o valor proposto de R$ 170,00!',
+    text: 'Olá Ivi, boa tarde! Vi seu pedido para amanhã às 08:30 em Botafogo. Aceito o valor proposto de R$ 170,00!',
     timestamp: '10:22',
   },
   {
     id: 'msg_002',
     jobId: 'job_001',
-    senderId: 'client_mariana',
-    senderName: 'Mariana Souza',
+    senderId: 'client_Ivi',
+    senderName: 'Ivi Lopes',
     senderAvatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=160&auto=format&fit=crop&q=80',
     senderRole: 'client',
     text: 'Oi Dona Rosa! Que maravilha. Você costuma trazer algum produto específico para piso de taco ou prefere usar o meu?',
@@ -308,21 +308,21 @@ export const INITIAL_MESSAGES: ChatMessage[] = [
   {
     id: 'msg_004',
     jobId: 'job_002',
-    senderId: 'cleaner_luciana',
-    senderName: 'Luciana Santos',
+    senderId: 'cleaner_Floki',
+    senderName: 'Floki Bastos',
     senderAvatar: 'https://images.unsplash.com/photo-1567532939604-b6b5b0db2604?w=160&auto=format&fit=crop&q=80',
     senderRole: 'cleaner',
-    text: 'Mariana, tudo confirmado para sexta às 13:30! Já separei o material para os vidros da varanda.',
+    text: 'Ivi, tudo confirmado para sexta às 13:30! Já separei o material para os vidros da varanda.',
     timestamp: 'Ontem 16:15',
   },
   {
     id: 'msg_005',
     jobId: 'job_002',
-    senderId: 'client_mariana',
-    senderName: 'Mariana Souza',
+    senderId: 'client_Ivi',
+    senderName: 'Ivi Lopes',
     senderAvatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=160&auto=format&fit=crop&q=80',
     senderRole: 'client',
-    text: 'Perfeito, Luciana! A portaria já está autorizada com seu nome.',
+    text: 'Perfeito, Floki! A portaria já está autorizada com seu nome.',
     timestamp: 'Ontem 16:30',
   }
 ];
